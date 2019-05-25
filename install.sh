@@ -5,3 +5,4 @@ ln -s .notable.json ~
 ln -s .tmux.conf ~
 ln -s .wakatime.cfg ~
 ln -s .zshrc ~
+ln -s .iterm ~/Documents/iTerm
