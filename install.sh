@@ -10,3 +10,4 @@ ln -s "${DOTFILES_DIR}/wakatime.cfg" ~/.wakatime.cfg
 ln -s "${DOTFILES_DIR}/zshrc" ~/.zshrc
 ln -s "${DOTFILES_DIR}/iterm" ~/.iterm
 ln -s "${DOTFILES_DIR}/Brewfile" ~/Brewfile
+ln -s "${DOTFILES_DIR}/ssh-config" ~/ssh/config

@@ -1,0 +1,56 @@
+Host *
+  ServerAliveInterval 30
+
+Host tuleap.xmlteam.com
+  User centos
+
+Host marketingmetrica.com
+  User metrica
+  Port 2222
+
+Host repos.xmlteam.com
+  User rodrigo
+  PasswordAuthentication yes
+
+Host prefeed.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_oregon.pem
+
+Host oadmin.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_oregon.pem
+
+Host ops01.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_devops.pem
+
+Host devops02.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_devops.pem
+
+Host tools.iconsportswire.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_devops.pem
+
+Host xmlt-nagios.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_devops.pem
+
+Host gitlab.xml.team
+  IdentityFile ~/.ssh/id_rsa
+
+Host *.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_northvirginia.pem
+
+Host *.iconsportswire.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_northvirginia.pem
+
+Host *.sportsforecaster.com
+  User ubuntu
+  IdentityFile ~/.ssh/xml_northvirginia.pem
+
+Host *.xml.team
+  User admin
+  IdentityFile ~/.ssh/devops.pem
