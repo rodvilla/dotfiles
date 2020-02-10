@@ -4,7 +4,7 @@ tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "homebrew/services"
 tap "weaveworks/tap"
-tap homebrew/cask-fonts
+tap "homebrew/cask-fonts"
 brew "composer"
 brew "deployer"
 brew "php-code-sniffer"
