@@ -1,4 +1,5 @@
 {
+	"cwd": "/Users/rodrigo/Google Drive/Notes",
 	"monaco": {
 		"editorOptions": {
 			"minimap": {
@@ -11,6 +12,6 @@
 		"by": "title",
 		"type": "ascending"
 	},
-	"tutorial": true,
-	"cwd": "/Users/rodrigo/Google Drive/Notes"
+	"theme": "dark",
+	"tutorial": true
 }
