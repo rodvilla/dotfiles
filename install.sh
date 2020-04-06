@@ -4,15 +4,20 @@
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Install Homebrew
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
-# Install from the backup brew file
-cd $DOTFILES_DIR && brew bundle
+# Make sure we are in the repo folder, so we can load the Brewfile
+cd $DOTFILES_DIR
 
+# Install all apps
+brew bundle
+
+# Copy all of our configuration files
 ln -s "${DOTFILES_DIR}/gitconfig" ~/.gitconfig
 ln -s "${DOTFILES_DIR}/notable.json" ~/.notable.json
 ln -s "${DOTFILES_DIR}/tmux.conf" ~/.tmux.conf
-ln -s "${DOTFILES_DIR}/wakatime.cfg" ~/.wakatime.cfg
 ln -s "${DOTFILES_DIR}/zshrc" ~/.zshrc
 ln -s "${DOTFILES_DIR}/iterm" ~/.iterm
-ln -s "${DOTFILES_DIR}/ssh-config" ~/ssh/config
+
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

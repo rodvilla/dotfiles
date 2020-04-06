@@ -36,6 +36,10 @@ Host xmlt-nagios.xmlteam.com
   User ubuntu
   IdentityFile ~/.ssh/xml_devops.pem
 
+Host ffdops.xmlteam.com
+  User ubuntu
+  IdentityFile ~/.ssh/devops.pem
+
 Host gitlab.xml.team
   IdentityFile ~/.ssh/id_rsa
 
@@ -54,3 +58,8 @@ Host *.sportsforecaster.com
 Host *.xml.team
   User admin
   IdentityFile ~/.ssh/devops.pem
+
+Host tiybdeploy
+  IdentityFile ~/.ssh/tiyb_deploy2.pub
+  User deploy
+  Port 18442
