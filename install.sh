@@ -12,12 +12,15 @@ cd $DOTFILES_DIR
 # Install all apps
 brew bundle
 
+# Install TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# Install zgen
+git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+
 # Copy all of our configuration files
 ln -s "${DOTFILES_DIR}/gitconfig" ~/.gitconfig
+ln -s "${DOTFILES_DIR}/iterm" ~/.iterm
 ln -s "${DOTFILES_DIR}/notable.json" ~/.notable.json
 ln -s "${DOTFILES_DIR}/tmux.conf" ~/.tmux.conf
 ln -s "${DOTFILES_DIR}/zshrc" ~/.zshrc
-ln -s "${DOTFILES_DIR}/iterm" ~/.iterm
-
-# Install TPM
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
