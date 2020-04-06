@@ -1,6 +1,4 @@
 # System variables
-export LC_ALL=en_GB.UTF-8  
-export LANG=en_GB.UTF-8
 export ZSH_WAKATIME_PROJECT_DETECTION=true
 export HOMEBREW_GITHUB_API_TOKEN=fbbc72dc88b0d36b2aaea228344f6aba752ee584
 
