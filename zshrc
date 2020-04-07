@@ -1,9 +1,14 @@
 # System variables
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
 export ZSH_WAKATIME_PROJECT_DETECTION=true
 export HOMEBREW_GITHUB_API_TOKEN=fbbc72dc88b0d36b2aaea228344f6aba752ee584
 
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
+
+# Add homebrew to path
+export PATH="/usr/local/sbin:$PATH"
 
 # If the init scipt doesn't exist
 if ! zgen saved; then
@@ -18,7 +23,6 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-syntax-highlighting
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
-  zgen load wbingli/zsh-wakatime
   zgen load sticklerm3/alehouse
   zgen load gretzky/auto-color-ls
   zgen load jessarcher/zsh-artisan

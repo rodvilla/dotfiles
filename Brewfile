@@ -1,25 +1,16 @@
-# Taps
 tap "homebrew/bundle"
 tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
 tap "homebrew/core"
-tap "homebrew/services"
-
-# Binaries
 brew "awscli"
 brew "composer"
-brew "deployer"
 brew "git"
 brew "mas"
 brew "node"
-brew "tmux"
-
-# Development
 brew "php-code-sniffer"
 brew "php-cs-fixer"
-
-# Apps
+brew "tmux"
 cask "alfred"
 cask "android-file-transfer"
 cask "android-platform-tools"
@@ -29,7 +20,12 @@ cask "boom-3d"
 cask "caffeine"
 cask "discord"
 cask "disk-inventory-x"
+cask "docker"
+cask "firefox"
 cask "flux"
+cask "font-fira-code"
+cask "font-inconsolata-for-powerline"
+cask "font-jetbrainsmono-nerd-font"
 cask "fork"
 cask "google-backup-and-sync"
 cask "google-chrome-beta"
@@ -44,21 +40,17 @@ cask "notion"
 cask "qbserve"
 cask "sizeup"
 cask "slack-beta"
+cask "smartsvn"
 cask "spotify"
 cask "steam"
 cask "tableplus"
-cask "the-unarchiver"
 cask "teamviewer"
 cask "telegram"
+cask "the-unarchiver"
 cask "ticktick"
 cask "visual-studio-code"
 cask "vlc"
 cask "webtorrent"
 cask "whatsapp"
-
-# Apps from App Store
+mas "Spark", id: 1176895641
 mas "Unsplash Wallpapers", id: 1284863847
-
-# Fonts
-cask "font-inconsolata-for-powerline"
-cask "font-jetbrains-mono"
