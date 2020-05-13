@@ -9,6 +9,8 @@ source "${HOME}/.zgen/zgen.zsh"
 
 # Add homebrew to path
 export PATH="/usr/local/sbin:$PATH"
+# Add node 10
+export PATH="/usr/local/opt/node@10/bin:$PATH"
 
 # If the init scipt doesn't exist
 if ! zgen saved; then
@@ -55,3 +57,8 @@ alias rds-prefeed="ssh -N -L 3309:prefeeddb.caeklsu5i325.us-west-2.rds.amazonaws
 alias rds-tva="ssh -N -L 3310:tva.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 tvahttp1.xmlteam.com"
 alias rds-dev="ssh -N -L 3311:vdevdb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vdev.xmlteam.com"
 alias rds-games="ssh -N -L 3312:vgamesproddb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vgamesprod.xmlteam.com"
+###-tns-completion-start-###
+if [ -f /Users/rodrigo/.tnsrc ]; then 
+    source /Users/rodrigo/.tnsrc 
+fi
+###-tns-completion-end-###
