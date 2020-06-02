@@ -7,10 +7,10 @@ export HOMEBREW_GITHUB_API_TOKEN=fbbc72dc88b0d36b2aaea228344f6aba752ee584
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
 
-# Add homebrew to path
-export PATH="/usr/local/sbin:$PATH"
-# Add node 10
-export PATH="/usr/local/opt/node@10/bin:$PATH"
+if [[ -z $TMUX ]]; then
+  # Edit the path only once!
+  export PATH="/Users/rodrigo/.composer/vendor/bin:/usr/local/opt/node@10/bin:/usr/local/sbin:$PATH"
+fi
 
 # If the init scipt doesn't exist
 if ! zgen saved; then
@@ -26,10 +26,8 @@ if ! zgen saved; then
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
   zgen load sticklerm3/alehouse
-  zgen load gretzky/auto-color-ls
   zgen load jessarcher/zsh-artisan
   zgen load chrissicool/zsh-256color
-  zgen load zpm-zsh/colorize
   zgen load srijanshetty/docker-zsh
   zgen load denysdovhan/spaceship-prompt spaceship
 
@@ -57,6 +55,7 @@ alias rds-prefeed="ssh -N -L 3309:prefeeddb.caeklsu5i325.us-west-2.rds.amazonaws
 alias rds-tva="ssh -N -L 3310:tva.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 tvahttp1.xmlteam.com"
 alias rds-dev="ssh -N -L 3311:vdevdb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vdev.xmlteam.com"
 alias rds-games="ssh -N -L 3312:vgamesproddb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vgamesprod.xmlteam.com"
+alias rds-xmlt-dev="ssh -N -L 3313:xmlt-dev-db.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 dev1.xmlteam.com"
 ###-tns-completion-start-###
 if [ -f /Users/rodrigo/.tnsrc ]; then 
     source /Users/rodrigo/.tnsrc 
