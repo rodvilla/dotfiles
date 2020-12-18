@@ -54,10 +54,9 @@ alias rds-prod="ssh -N -L 3308:vproddb.cptz51gn1569.us-east-1.rds.amazonaws.com:
 alias rds-prefeed="ssh -N -L 3309:prefeeddb.caeklsu5i325.us-west-2.rds.amazonaws.com:3306 prefeed.xmlteam.com"
 alias rds-tva="ssh -N -L 3310:tva.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 tvahttp1.xmlteam.com"
 alias rds-dev="ssh -N -L 3311:vdevdb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vdev.xmlteam.com"
-alias rds-games="ssh -N -L 3312:vgamesproddb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 vgamesprod.xmlteam.com"
+alias rds-games="ssh -N -L 3312:vgamesproddb.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 ext1.xmlteam.com"
 alias rds-xmlt-dev="ssh -N -L 3313:xmlt-dev-db.cptz51gn1569.us-east-1.rds.amazonaws.com:3306 dev1.xmlteam.com"
-###-tns-completion-start-###
-if [ -f /Users/rodrigo/.tnsrc ]; then 
-    source /Users/rodrigo/.tnsrc 
-fi
-###-tns-completion-end-###
+alias rds-gamesv5="ssh -N -L 3314:gamesv5.cluster-cptz51gn1569.us-east-1.rds.amazonaws.com:3306 devops02.xmlteam.com"
+alias rds-gamesv5-prod="ssh -N -L 3314:gamesv5-prod.cluster-cptz51gn1569.us-east-1.rds.amazonaws.com:3306 web.forecastergames.com"
+alias tunnel-amsterdam="ssh -N -L 3308:127.0.0.1:3306 villalobos.im"
+
