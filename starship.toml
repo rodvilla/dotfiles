@@ -1,0 +1,26 @@
+## Personal configuration for startship.rs
+add_newline = true
+command_timeout = 800
+
+[battery]
+disabled = true
+
+[nodejs]
+format = "[node ($version )]($style)"
+style = "green"
+
+[php]
+format = "[php ($version )]($style)"
+
+[aws]
+format = "[$symbol($profile )((region $region) )]($style)"
+
+[terraform]
+format = '[\[tform $workspace\]]($style) '
+
+[package]
+format = "[$symbol$version]($style) "
+
+[python]
+symbol = "py "
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
