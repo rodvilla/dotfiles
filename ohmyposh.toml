@@ -1,0 +1,89 @@
+#:schema https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+version = 2
+final_space = true
+console_title_template = '{{ .Shell }} in {{ .Folder }}'
+
+[[blocks]]
+  type = 'prompt'
+  alignment = 'left'
+
+    [[blocks.segments]]
+      type = 'path'
+      style = 'plain'
+      background = 'transparent'
+      foreground = 'p:lightBlue'
+      template = '{{ .Path }} '
+
+      [blocks.segments.properties]
+        style = 'full'
+
+    [[blocks.segments]]
+      type = 'git'
+      style = 'plain'
+      background = 'transparent'
+      foreground = 'p:white'
+      template = ' {{ .HEAD }}{{ if or (.Working.Changed) (.Staging.Changed) }}*{{end}} '
+
+      [blocks.segments.properties]
+        branch_icon = " "
+        commit_icon = '@'
+        fetch_status = true
+
+    [[blocks.segments]]
+      type = 'node'
+      style = 'powerline'
+      template = "  {{ .Full }} "
+      foreground = 'p:lightGreen'
+
+    [[blocks.segments]]
+      type = 'php'
+      style = 'plain'
+      foreground = 'p:purple'
+      template = "{{ if .Error }}{{ .Error }}{{ else }} 󰧦 {{ .Major }}.{{ .Minor }}{{ end }}"
+
+  [[blocks]]
+    type = 'rprompt'
+    overflow = 'hidden'
+
+    [[blocks.segments]]
+      type = 'executiontime'
+      style = 'plain'
+      foreground = 'p:yellow'
+      background = 'transparent'
+
+  [[blocks]]
+    type = 'prompt'
+    alignment = 'left'
+    newline = true
+
+    [[blocks.segments]]
+      type = 'text'
+      style = 'plain'
+      template = ''
+      foreground_templates = [
+        "{{if gt .Code 0}}red{{end}}",
+        "{{if eq .Code 0}}green{{end}}",
+      ]
+
+[transient_prompt]
+  background = 'transparent'
+  template = ' '
+  foreground_templates = [
+    "{{if gt .Code 0}}red{{end}}",
+    "{{if eq .Code 0}}green{{end}}",
+  ]
+
+[palette]
+black = '#262B44'
+blue = '#114FCC'
+green = '#59C9A5'
+orange = '#F07623'
+red = '#D81E5B'
+gray = '#cccccc'
+white = '#E0DEF4'
+yellow = '#F3AE35'
+paleGreen = '#87ffaf'
+lightGreen = '#b2e052'
+lightBlue = '#8df9fd'
+purple = '#a47ce8'

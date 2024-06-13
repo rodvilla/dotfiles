@@ -13,9 +13,6 @@ export ANDROID_SDK_ROOT=~/Library/Android/sdk
 export ANDROID_AVD_HOME=~/.android/avd
 export NVM_DIR="$HOME/.nvm"
 
-# Spaceship prompt options
-SPACESHIP_TIME_SHOW=true
-
 # Tokens, API Keys, etc.
 if [ -f ~/.secrets ]; then
   source ~/.secrets
@@ -76,7 +73,6 @@ alias doc="docker"
 alias docc="docker compose"
 alias doce="docker exec -it"
 alias docce="docker compose exec -it"
-alias doceb='docker run --platform linux/amd64 --rm -it -v $HOME/.aws:/root/.aws -v $HOME/.ssh:/root/.ssh -v $(pwd)/.elasticbeanstalk:/.elasticbeanstalk lawnstarter/awsebcli'
 alias docfresh="docker compose down && docker compose up -d"
 alias hc="herd composer"
 alias hp="herd php"
@@ -89,7 +85,6 @@ export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd
 # Herd injected PHP 8.1 configuration.
 export HERD_PHP_81_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/81/"
 
-# eval "$(starship init zsh)"
 if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
 fi

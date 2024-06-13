@@ -36,5 +36,5 @@ ln -s ./.mackup.cfg $HOME/.mackup.cfg
 # Symlink other dotfiles
 ln -s ./.gitconfig $HOME/.gitconfig
 ln -s ./.npmrc $HOME/.npmrc
-ln -s ./starship.toml $HOME/.config/starship.toml
+ln -s ./ohmyposh.toml $HOME/.config/ohmyposh.toml
 ln -s ./.tmux.conf $HOME/.tmux.conf
