@@ -11,30 +11,41 @@ export ZSH_WAKATIME_PROJECT_DETECTION=true
 export ANDROID_HOME=~/Library/Android/sdk
 export ANDROID_SDK_ROOT=~/Library/Android/sdk
 export ANDROID_AVD_HOME=~/.android/avd
+export NVM_DIR="$HOME/.nvm"
 
-# GH Token, etc
+# Spaceship prompt options
+SPACESHIP_TIME_SHOW=true
+
+# Tokens, API Keys, etc.
 if [ -f ~/.secrets ]; then
   source ~/.secrets
 fi
 
-# Plugin options
+# Plugins options
 zstyle ':omz:plugins:nvm' autoload yes
 
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
 
+# Logic here will only be called once when Tmux inits
 if [[ -z $TMUX ]]; then
-  # Edit the path only once
+  # Edit the path
   export PATH=/opt/homebrew/bin:$PATH
   export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
   export PATH=$PATH:$ANDROID_HOME/emulator
   export PATH=$PATH:$ANDROID_HOME/platform-tools
   export PATH=$PATH:~/.composer/vendor/bin
 
-# Herd injected PHP binary.
-export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH
+  # Herd injected PHP binary.
+  export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH
+
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+  eval "$(rbenv init - zsh)"
 fi
 
+# Configure Zgen
 if ! zgen saved; then
   # Oh My Zsh plugins
   zgen oh-my-zsh
@@ -58,30 +69,19 @@ if ! zgen saved; then
   zgen save
 fi
 
-# NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# Spaceship prompt options
-SPACESHIP_TIME_SHOW=true
-
 # Alias
 alias c="clear"
 alias pa="php artisan"
-
-# Docker
 alias doc="docker"
 alias docc="docker compose"
 alias doce="docker exec -it"
 alias docce="docker compose exec -it"
 alias doceb='docker run --platform linux/amd64 --rm -it -v $HOME/.aws:/root/.aws -v $HOME/.ssh:/root/.ssh -v $(pwd)/.elasticbeanstalk:/.elasticbeanstalk lawnstarter/awsebcli'
 alias docfresh="docker compose down && docker compose up -d"
-
-alias ytw="yarn test --watch"
-
-alias hpa="herd php artisan"
 alias hc="herd composer"
+alias hp="herd php"
+alias hpa="herd php artisan"
+alias ytw="yarn test --watch"
 
 # Herd injected PHP 8.2 configuration.
 export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"
@@ -89,5 +89,7 @@ export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd
 # Herd injected PHP 8.1 configuration.
 export HERD_PHP_81_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/81/"
 
-eval "$(rbenv init - zsh)"
-eval "$(starship init zsh)"
+# eval "$(starship init zsh)"
+if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
+fi
