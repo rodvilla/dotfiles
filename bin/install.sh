@@ -28,13 +28,11 @@ brew bundle --file ./Brewfile
 
 # Create a projects directories
 mkdir $HOME/Code
-mkdir $HOME/Herd
 
-# Symlink the Mackup config file to the home directory
-ln -s ./.mackup.cfg $HOME/.mackup.cfg
+# Mackup takes care of a lot of files
+# Run mackup restore once Google Drive is setup
+ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
 
 # Symlink other dotfiles
-ln -s ./.gitconfig $HOME/.gitconfig
-ln -s ./.npmrc $HOME/.npmrc
-ln -s ./ohmyposh.toml $HOME/.config/ohmyposh.toml
-ln -s ./.tmux.conf $HOME/.tmux.conf
+ln -s $HOME/.dotfiles/.npmrc $HOME/.npmrc
+ln -s $HOME/.dotfiles/ohmyposh.toml $HOME/.config/ohmyposh.toml

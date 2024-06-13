@@ -6,10 +6,6 @@ SECRETS_FOLDER="/Users/rodrigo/Library/CloudStorage/GoogleDrive-rodrigovilla3@gm
 # Main secrets
 ln -s "$SECRETS_FOLDER/secrets" $HOME/.secrets
 
-# External service keys
-ln -s "$SECRETS_FOLDER/wakatime.cfg" $HOME/.wakatime.cfg
-ln -s "$SECRETS_FOLDER/aws" ~/.aws
-
 # Make .ssh directory if it does not exist
 if [ ! -d "$HOME/.ssh" ]; then
     mkdir $HOME/.ssh
@@ -17,3 +13,5 @@ if [ ! -d "$HOME/.ssh" ]; then
     chown -R rodrigo:rodrigo $HOME/.ssh
     chmod 700 $HOME/.ssh
 fi
+
+cp $SECRETS_FOLDER/ssh/config $HOME/.ssh/config
