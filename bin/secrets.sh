@@ -13,5 +13,3 @@ if [ ! -d "$HOME/.ssh" ]; then
     chown -R rodrigo:rodrigo $HOME/.ssh
     chmod 700 $HOME/.ssh
 fi
-
-cp $SECRETS_FOLDER/ssh/config $HOME/.ssh/config
