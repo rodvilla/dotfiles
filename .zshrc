@@ -25,9 +25,11 @@ zstyle ':omz:plugins:nvm' autoload yes
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
 
+# Load NVM
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# Load Rbenv
 eval "$(rbenv init - zsh)"
 
 # Configure Zgen
@@ -69,19 +71,19 @@ alias yt="yarn test"
 alias ytw="yarn test --watch"
 alias t="tmux attach || tmux new -s base"
 
-if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+# Oh My Posh only inside Tmux
+if [[ -n $TMUX ]] && [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
   eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
 fi
-
-# Herd injected PHP 8.2 configuration.
-export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"
 
 # Herd injected PHP 8.1 configuration.
 export HERD_PHP_81_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/81/"
 
+# Herd injected PHP 8.2 configuration.
+export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"
+
 # Herd injected PHP 8.3 configuration.
 export HERD_PHP_83_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/83/"
-
 
 # Herd injected PHP binary.
 export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH
