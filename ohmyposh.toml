@@ -13,10 +13,10 @@ console_title_template = '{{ .Shell }} in {{ .Folder }}'
       style = 'plain'
       background = 'transparent'
       foreground = 'p:lightBlue'
-      template = '{{ .Path }} '
+      template = "<green>\u256d\u2500</> {{ .Path }} "
 
       [blocks.segments.properties]
-        style = 'full'
+        style = 'folder'
 
     [[blocks.segments]]
       type = 'git'
@@ -52,6 +52,9 @@ console_title_template = '{{ .Shell }} in {{ .Folder }}'
       foreground = 'p:yellow'
       background = 'transparent'
 
+      [blocks.segments.properties]
+        style = 'round'
+
   [[blocks]]
     type = 'prompt'
     alignment = 'left'
@@ -60,7 +63,7 @@ console_title_template = '{{ .Shell }} in {{ .Folder }}'
     [[blocks.segments]]
       type = 'text'
       style = 'plain'
-      template = ''
+      template = "\u2570\u2500"
       foreground_templates = [
         "{{if gt .Code 0}}red{{end}}",
         "{{if eq .Code 0}}green{{end}}",

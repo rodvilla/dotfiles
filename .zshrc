@@ -8,6 +8,7 @@ export NVM_AUTOLOAD=1
 
 # External Services
 export ZSH_WAKATIME_PROJECT_DETECTION=true
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home
 export ANDROID_HOME=~/Library/Android/sdk
 export ANDROID_SDK_ROOT=~/Library/Android/sdk
 export ANDROID_AVD_HOME=~/.android/avd
@@ -24,23 +25,10 @@ zstyle ':omz:plugins:nvm' autoload yes
 # Load zgen
 source "${HOME}/.zgen/zgen.zsh"
 
-# Logic here will only be called once when Tmux inits
-if [[ -z $TMUX ]]; then
-  # Edit the path
-  export PATH=/opt/homebrew/bin:$PATH
-  export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
-  export PATH=$PATH:$ANDROID_HOME/emulator
-  export PATH=$PATH:$ANDROID_HOME/platform-tools
-  export PATH=$PATH:~/.composer/vendor/bin
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-  # Herd injected PHP binary.
-  export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH
-
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-  eval "$(rbenv init - zsh)"
-fi
+eval "$(rbenv init - zsh)"
 
 # Configure Zgen
 if ! zgen saved; then
@@ -54,13 +42,13 @@ if ! zgen saved; then
   zgen oh-my-zsh plugins/extract
   # Other plugins
   zgen load unixorn/autoupdate-zgen
-  zgen load zsh-users/zsh-syntax-highlighting
   zgen load zsh-users/zsh-autosuggestions
   zgen load djui/alias-tips
   zgen load sticklerm3/alehouse
   zgen load jessarcher/zsh-artisan
   zgen load chrissicool/zsh-256color
   zgen load srijanshetty/docker-zsh
+  zgen load zsh-users/zsh-syntax-highlighting
 
   # generate the init script from plugins above
   zgen save
@@ -77,7 +65,13 @@ alias docfresh="docker compose down && docker compose up -d"
 alias hc="herd composer"
 alias hp="herd php"
 alias hpa="herd php artisan"
+alias yt="yarn test"
 alias ytw="yarn test --watch"
+alias t="tmux attach || tmux new -s base"
+
+if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
+fi
 
 # Herd injected PHP 8.2 configuration.
 export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"
@@ -85,6 +79,9 @@ export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd
 # Herd injected PHP 8.1 configuration.
 export HERD_PHP_81_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/81/"
 
-if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
-fi
+# Herd injected PHP 8.3 configuration.
+export HERD_PHP_83_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/83/"
+
+
+# Herd injected PHP binary.
+export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH

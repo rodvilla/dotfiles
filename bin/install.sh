@@ -19,6 +19,13 @@ fi
 rm -rf $HOME/.zshrc
 ln -sw $HOME/.dotfiles/.zshrc $HOME/.zshrc
 
+# @TODO: Zgen
+# @TODO: TPM
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# @TODO: NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
 # Update Homebrew recipes
 brew update
 
@@ -35,4 +42,5 @@ ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
 
 # Symlink other dotfiles
 ln -s $HOME/.dotfiles/.npmrc $HOME/.npmrc
+mkdir $HOME/.config
 ln -s $HOME/.dotfiles/ohmyposh.toml $HOME/.config/ohmyposh.toml
