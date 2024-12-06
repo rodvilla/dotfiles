@@ -42,6 +42,8 @@ if ! zgen saved; then
   zgen oh-my-zsh plugins/tmux
   zgen oh-my-zsh plugins/nvm
   zgen oh-my-zsh plugins/extract
+  zgen oh-my-zsh plugins/kubectl
+  zgen oh-my-zsh plugins/composer
   # Other plugins
   zgen load unixorn/autoupdate-zgen
   zgen load zsh-users/zsh-autosuggestions
