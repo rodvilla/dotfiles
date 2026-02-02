@@ -6,6 +6,17 @@
 export DOTFILES=$HOME/.dotfiles
 
 # =============================================================================
+# PATH Configuration
+# =============================================================================
+# Homebrew (Apple Silicon)
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# User local binaries (Claude CLI, etc.)
+export PATH="$HOME/.local/bin:$PATH"
+
+# =============================================================================
 # Zsh Options
 # =============================================================================
 # History improvements

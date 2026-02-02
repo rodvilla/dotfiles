@@ -2,6 +2,9 @@
 # Format: github-user/repo [options]
 # See: https://getantidote.github.io/options
 
+# Oh My Zsh libraries (must load before plugins)
+ohmyzsh/ohmyzsh path:lib/completion.zsh
+
 # Oh My Zsh plugins
 ohmyzsh/ohmyzsh path:plugins/git
 ohmyzsh/ohmyzsh path:plugins/macos
