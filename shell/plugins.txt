@@ -12,12 +12,16 @@ ohmyzsh/ohmyzsh path:plugins/aws
 ohmyzsh/ohmyzsh path:plugins/nvm
 ohmyzsh/ohmyzsh path:plugins/extract
 ohmyzsh/ohmyzsh path:plugins/composer
+ohmyzsh/ohmyzsh path:plugins/colored-man-pages
+ohmyzsh/ohmyzsh path:plugins/sudo
 
 # Third-party plugins
 zsh-users/zsh-autosuggestions
-zsh-users/zsh-syntax-highlighting
 djui/alias-tips
 jessarcher/zsh-artisan
 
 # Docker completions
 srijanshetty/docker-zsh
+
+# Syntax highlighting must be loaded last
+zsh-users/zsh-syntax-highlighting

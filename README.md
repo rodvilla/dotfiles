@@ -18,6 +18,96 @@ cd ~/.dotfiles
 ./bin/secrets.sh
 ```
 
+## Features & Quick Reference
+
+### Zsh Shell
+
+**History**
+- 50,000 commands saved across sessions
+- Duplicates automatically removed
+- Shared between all terminal sessions
+
+**Directory Navigation**
+- `AUTO_CD` - Type directory name to cd into it (no `cd` needed)
+- `AUTO_PUSHD` - Directory stack for quick navigation with `cd -`
+- `zoxide` - Smart cd that learns your habits (`z project` jumps to ~/Developer/project)
+
+**Key Plugins**
+| Plugin | Description |
+|--------|-------------|
+| `zsh-autosuggestions` | Fish-like suggestions based on history |
+| `zsh-syntax-highlighting` | Command highlighting (green=valid, red=invalid) |
+| `alias-tips` | Reminds you of aliases when typing full commands |
+| `sudo` | Press `ESC ESC` to prepend sudo to current/last command |
+| `extract` | Extract any archive with `extract file.tar.gz` |
+| `colored-man-pages` | Colorized man pages |
+
+### Tmux Multiplexer
+
+**Prefix Key:** `Ctrl+A` (instead of default Ctrl+B)
+
+**Session Management**
+| Key | Action |
+|-----|--------|
+| `t` (alias) | Attach to existing session or create new |
+| `Ctrl+A d` | Detach from session |
+| `Ctrl+A r` | Reload tmux config |
+
+**Window & Pane Management**
+| Key | Action |
+|-----|--------|
+| `Ctrl+A \|` | Split vertical (new pane right) |
+| `Ctrl+A -` | Split horizontal (new pane below) |
+| `Ctrl+A h/j/k/l` | Navigate panes (Vim-style) |
+| `Alt+Arrow` | Navigate panes (no prefix needed) |
+| `Ctrl+A H/J/K/L` | Resize panes |
+
+**Copy Mode (Vi-style)**
+| Key | Action |
+|-----|--------|
+| `Ctrl+A [` | Enter copy mode |
+| `v` | Start selection |
+| `y` or `Enter` | Copy to clipboard (pbcopy) |
+| `q` | Exit copy mode |
+
+**Plugins (via TPM)**
+- `tmux-resurrect` - Save/restore sessions across restarts
+- `tmux-continuum` - Auto-save sessions every 15 minutes
+- `tmux-yank` - Enhanced clipboard support
+- `tmux-copycat` - Regex search in scrollback
+
+### FZF Fuzzy Finder
+
+**Keyboard Shortcuts**
+| Key | Action |
+|-----|--------|
+| `Ctrl+R` | Search command history |
+| `Ctrl+T` | Search files in current directory |
+| `Alt+C` | cd into subdirectory |
+
+**Configuration**
+- Height: 40% of terminal
+- Layout: Reverse (results at top)
+- Uses `fd` for faster file finding (respects .gitignore)
+
+### Modern CLI Replacements
+
+These are auto-aliased when installed:
+
+| Original | Replacement | Benefits |
+|----------|-------------|----------|
+| `ls` | `eza` | Icons, git status, colors |
+| `cat` | `bat` | Syntax highlighting, line numbers |
+| `cd` | `zoxide` | Learns frequently used directories |
+| `grep` | `ripgrep` | Faster, respects .gitignore |
+| `find` | `fd` | Simpler syntax, faster |
+
+**Eza Aliases**
+- `ls` - Basic listing
+- `ll` - Long format
+- `la` - Include hidden files
+- `lt` - Tree view
+
 ## Directory Structure
 
 ```
