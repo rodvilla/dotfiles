@@ -1,0 +1,82 @@
+# Ghostty Terminal Configuration
+# Migrated from iTerm2 "rodrigo" theme with enhancements
+
+# =============================================================================
+# Font
+# =============================================================================
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# =============================================================================
+# Colors - Custom dark theme with vibrant colors
+# =============================================================================
+background = 1e1e2e
+foreground = cdd6f4
+
+# Normal colors
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#f5c2e7
+palette = 6=#94e2d5
+palette = 7=#bac2de
+
+# Bright colors
+palette = 8=#585b70
+palette = 9=#f38ba8
+palette = 10=#a6e3a1
+palette = 11=#f9e2af
+palette = 12=#89b4fa
+palette = 13=#f5c2e7
+palette = 14=#94e2d5
+palette = 15=#a6adc8
+
+# =============================================================================
+# Window
+# =============================================================================
+background-blur-radius = 25
+window-padding-x = 12
+window-padding-y = 8
+window-decoration = true
+macos-titlebar-style = tabs
+confirm-close-surface = false
+
+# =============================================================================
+# Cursor
+# =============================================================================
+cursor-style = underline
+cursor-style-blink = true
+
+# =============================================================================
+# Shell Integration
+# =============================================================================
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# =============================================================================
+# Clipboard
+# =============================================================================
+copy-on-select = clipboard
+clipboard-paste-protection = false
+
+# =============================================================================
+# Quick Terminal (replaces iTerm2 hotkey window)
+# =============================================================================
+keybind = global:ctrl+`=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.15
+
+# =============================================================================
+# Keybindings
+# =============================================================================
+# Alt+arrow for word navigation
+macos-option-as-alt = true
+keybind = alt+left=text:\x1bb
+keybind = alt+right=text:\x1bf
+
+# =============================================================================
+# Misc
+# =============================================================================
+mouse-hide-while-typing = true

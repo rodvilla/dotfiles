@@ -1,0 +1,23 @@
+# Antidote Plugin List
+# Format: github-user/repo [options]
+# See: https://getantidote.github.io/options
+
+# Oh My Zsh plugins
+ohmyzsh/ohmyzsh path:plugins/git
+ohmyzsh/ohmyzsh path:plugins/macos
+ohmyzsh/ohmyzsh path:plugins/tmux
+ohmyzsh/ohmyzsh path:plugins/docker
+ohmyzsh/ohmyzsh path:plugins/kubectl
+ohmyzsh/ohmyzsh path:plugins/aws
+ohmyzsh/ohmyzsh path:plugins/nvm
+ohmyzsh/ohmyzsh path:plugins/extract
+ohmyzsh/ohmyzsh path:plugins/composer
+
+# Third-party plugins
+zsh-users/zsh-autosuggestions
+zsh-users/zsh-syntax-highlighting
+djui/alias-tips
+jessarcher/zsh-artisan
+
+# Docker completions
+srijanshetty/docker-zsh

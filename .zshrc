@@ -1,91 +1,91 @@
+# =============================================================================
+# Zsh Configuration
+# =============================================================================
+
 # Path to dotfiles
 export DOTFILES=$HOME/.dotfiles
 
-# System variables
+# =============================================================================
+# Environment Variables
+# =============================================================================
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
-export NVM_AUTOLOAD=1
 
-# External Services
-export ZSH_WAKATIME_PROJECT_DETECTION=true
+# Java / Android
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home
 export ANDROID_HOME=~/Library/Android/sdk
 export ANDROID_SDK_ROOT=~/Library/Android/sdk
 export ANDROID_AVD_HOME=~/.android/avd
-export NVM_DIR="$HOME/.nvm"
 
-# Tokens, API Keys, etc.
-if [ -f ~/.secrets ]; then
-  source ~/.secrets
+# NVM
+export NVM_DIR="$HOME/.nvm"
+export NVM_AUTOLOAD=1
+
+# WakaTime
+export ZSH_WAKATIME_PROJECT_DETECTION=true
+
+# =============================================================================
+# Secrets (API keys, tokens, etc.)
+# =============================================================================
+[[ -f ~/.secrets ]] && source ~/.secrets
+
+# =============================================================================
+# NVM - Node Version Manager
+# =============================================================================
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# =============================================================================
+# Rbenv - Ruby Version Manager
+# =============================================================================
+if command -v rbenv &> /dev/null; then
+  eval "$(rbenv init - zsh)"
 fi
 
-# Plugins options
+# =============================================================================
+# Antidote - Zsh Plugin Manager
+# =============================================================================
+# Clone antidote if needed
+if [[ ! -d ${ZDOTDIR:-~}/.antidote ]]; then
+  git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
+fi
+
+# Source antidote
+source ${ZDOTDIR:-~}/.antidote/antidote.zsh
+
+# Plugin configuration (before loading)
 zstyle ':omz:plugins:nvm' autoload yes
 
-# Load zgen
-source "${HOME}/.zgen/zgen.zsh"
+# Load plugins from file
+antidote load ${DOTFILES}/shell/plugins.txt
 
-# Load NVM
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# =============================================================================
+# Aliases
+# =============================================================================
+source ${DOTFILES}/shell/aliases.zsh
 
-# Load Rbenv
-eval "$(rbenv init - zsh)"
-
-# Configure Zgen
-if ! zgen saved; then
-  # Oh My Zsh plugins
-  zgen oh-my-zsh
-  zgen oh-my-zsh plugins/aws
-  zgen oh-my-zsh plugins/git
-  zgen oh-my-zsh plugins/macos
-  zgen oh-my-zsh plugins/tmux
-  zgen oh-my-zsh plugins/nvm
-  zgen oh-my-zsh plugins/extract
-  zgen oh-my-zsh plugins/kubectl
-  zgen oh-my-zsh plugins/composer
-  # Other plugins
-  zgen load unixorn/autoupdate-zgen
-  zgen load zsh-users/zsh-autosuggestions
-  zgen load djui/alias-tips
-  zgen load sticklerm3/alehouse
-  zgen load jessarcher/zsh-artisan
-  zgen load chrissicool/zsh-256color
-  zgen load srijanshetty/docker-zsh
-  zgen load zsh-users/zsh-syntax-highlighting
-
-  # generate the init script from plugins above
-  zgen save
+# =============================================================================
+# Oh My Posh Prompt
+# =============================================================================
+# Load Oh My Posh in supported terminals (iTerm2, Ghostty, tmux)
+# Skip in basic Apple Terminal
+if [[ "$TERM_PROGRAM" != "Apple_Terminal" ]]; then
+  if command -v oh-my-posh &> /dev/null; then
+    eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/config.toml)"
+  fi
 fi
 
-# Alias
-alias c="clear"
-alias pa="php artisan"
-alias doc="docker"
-alias docc="docker compose"
-alias doce="docker exec -it"
-alias docce="docker compose exec -it"
-alias docfresh="docker compose down && docker compose up -d"
-alias hc="herd composer"
-alias hp="herd php"
-alias hpa="herd php artisan"
-alias yt="yarn test"
-alias ytw="yarn test --watch"
-alias t="tmux attach || tmux new -s base"
-
-# Oh My Posh only inside Tmux
-if [[ -n $TMUX ]] && [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
-  eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh.toml)"
-fi
-
-# Herd injected PHP 8.1 configuration.
+# =============================================================================
+# Herd PHP Configuration
+# =============================================================================
 export HERD_PHP_81_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/81/"
-
-# Herd injected PHP 8.2 configuration.
 export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"
-
-# Herd injected PHP 8.3 configuration.
 export HERD_PHP_83_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/83/"
-
-# Herd injected PHP binary.
 export PATH="/Users/rodrigo/Library/Application Support/Herd/bin/":$PATH
+
+# =============================================================================
+# FZF - Fuzzy Finder
+# =============================================================================
+if command -v fzf &> /dev/null; then
+  source <(fzf --zsh)
+fi

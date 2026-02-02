@@ -1,119 +1,88 @@
+# =============================================================================
+# Brewfile - Base packages for all machines
+# =============================================================================
+
+# Taps
 tap "homebrew/bundle"
 tap "homebrew/services"
 tap "jandedobbeleer/oh-my-posh"
-tap "mrkai77/cask"
-tap "wix/brew"
-brew "aws-elasticbeanstalk"
-brew "awscli"
-brew "commitlint"
+
+# =============================================================================
+# CLI Tools - Essential
+# =============================================================================
 brew "git"
-brew "gradle"
-brew "jq"
-brew "kubernetes-cli"
-brew "kubectx"
-brew "mackup"
-brew "mas"
-brew "mysql-client"
-brew "python@3.10"
-brew "rbenv"
-brew "reattach-to-user-namespace"
-brew "tmux"
-brew "watchman"
-brew "webp"
 brew "zsh"
-brew "jandedobbeleer/oh-my-posh/oh-my-posh", link: false
-brew "wix/brew/applesimutils"
-cask "adoptopenjdk"
-cask "android-file-transfer"
-cask "android-platform-tools"
-cask "aws-vpn-client"
-cask "boom-3d"
-cask "dbngin"
-cask "discord"
-cask "docker"
-cask "folx"
+brew "tmux"
+brew "jq"
+brew "mas"
+brew "chezmoi"
+
+# Oh My Posh prompt
+brew "jandedobbeleer/oh-my-posh/oh-my-posh"
+
+# =============================================================================
+# Modern CLI Replacements
+# =============================================================================
+brew "bat"        # Better cat
+brew "eza"        # Better ls
+brew "fd"         # Better find
+brew "fzf"        # Fuzzy finder
+brew "ripgrep"    # Better grep
+brew "zoxide"     # Smarter cd
+
+# =============================================================================
+# Fonts
+# =============================================================================
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-sf-mono-for-powerline"
-cask "fork"
-cask "gitify"
-cask "google-chrome@beta"
-cask "google-drive"
-cask "graphql-playground"
-cask "herd"
-cask "hiddenbar"
-cask "iina"
-cask "istat-menus"
-cask "iterm2@beta"
-cask "lunar"
-cask "messenger"
-cask "notion"
-cask "obsidian"
-cask "postman"
+
+# =============================================================================
+# Terminal
+# =============================================================================
+cask "ghostty"
+
+# =============================================================================
+# Productivity
+# =============================================================================
 cask "raycast"
-cask "react-native-debugger"
-cask "sizeup"
-cask "slack@beta"
-cask "spotify"
-cask "tableplus"
-cask "teamviewer"
-cask "telegram"
+cask "hiddenbar"
+cask "stats"
 cask "the-unarchiver"
-cask "ticktick"
-cask "visual-studio-code"
-cask "vnc-viewer"
+
+# =============================================================================
+# Communication
+# =============================================================================
+cask "slack@beta"
+cask "discord"
+cask "telegram"
 cask "whatsapp"
+
+# =============================================================================
+# Media
+# =============================================================================
+cask "spotify"
+cask "iina"
+cask "boom-3d"
+
+# =============================================================================
+# Utilities
+# =============================================================================
+cask "lunar"
+cask "istat-menus"
+cask "karabiner-elements"
+
+# =============================================================================
+# Cloud & Storage
+# =============================================================================
+cask "google-drive"
+
+# =============================================================================
+# Mac App Store
+# =============================================================================
 mas "Amphetamine", id: 937984704
 mas "Bitwarden", id: 1352778147
+mas "Tailscale", id: 1475387142
 mas "GIPHY CAPTURE", id: 668208984
 mas "Spark", id: 1176895641
 mas "Unsplash Wallpapers", id: 1284863847
-vscode "alefragnani.project-manager"
-vscode "ankitcode.firefly"
-vscode "annsk.alignment"
-vscode "austenc.tailwind-docs"
-vscode "bmewburn.vscode-intelephense-client"
-vscode "bradlc.vscode-tailwindcss"
-vscode "calebporzio.better-phpunit"
-vscode "calebporzio.simple-php-cs-fixer"
-vscode "christian-kohler.npm-intellisense"
-vscode "dbaeumer.vscode-eslint"
-vscode "drcika.apc-extension"
-vscode "eamodio.gitlens"
-vscode "editorconfig.editorconfig"
-vscode "esbenp.prettier-vscode"
-vscode "figma.figma-vscode-extension"
-vscode "github.vscode-github-actions"
-vscode "github.vscode-pull-request-github"
-vscode "graphql.vscode-graphql-syntax"
-vscode "kasik96.latte"
-vscode "letrieu.expand-region"
-vscode "mehedidracula.php-namespace-resolver"
-vscode "mikestead.dotenv"
-vscode "mrmlnc.vscode-scss"
-vscode "ms-azuretools.vscode-docker"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode-remote.remote-ssh"
-vscode "ms-vscode-remote.remote-ssh-edit"
-vscode "ms-vscode.live-server"
-vscode "ms-vscode.remote-explorer"
-vscode "ms-vscode.sublime-keybindings"
-vscode "naumovs.color-highlight"
-vscode "neilbrayfield.php-docblocker"
-vscode "onecentlin.laravel-blade"
-vscode "open-southeners.laravel-pint"
-vscode "patbenatar.advanced-new-file"
-vscode "pkief.material-icon-theme"
-vscode "redhat.vscode-yaml"
-vscode "ryanluker.vscode-coverage-gutters"
-vscode "shanoor.vscode-nginx"
-vscode "shevaua.phpcs"
-vscode "steoates.autoimport"
-vscode "streetsidesoftware.code-spell-checker"
-vscode "supermaven.supermaven"
-vscode "tamasfe.even-better-toml"
-vscode "vue.volar"
-vscode "wakatime.vscode-wakatime"
-vscode "wayou.vscode-todo-highlight"
-vscode "xdebug.php-debug"
-vscode "yzhang.markdown-all-in-one"
