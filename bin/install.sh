@@ -114,15 +114,15 @@ install_brew_packages() {
   brew update
 
   log_info "Installing packages from Brewfile..."
-  brew bundle --file "$DOTFILES_DIR/Brewfile" --no-lock
+  brew bundle --file "$DOTFILES_DIR/Brewfile"
 
   # Install profile-specific packages
   if [[ "$PROFILE" == "workstation" ]] && [[ -f "$DOTFILES_DIR/Brewfile.workstation" ]]; then
     log_info "Installing workstation-specific packages..."
-    brew bundle --file "$DOTFILES_DIR/Brewfile.workstation" --no-lock
+    brew bundle --file "$DOTFILES_DIR/Brewfile.workstation"
   elif [[ "$PROFILE" == "media-server" ]] && [[ -f "$DOTFILES_DIR/Brewfile.media-server" ]]; then
     log_info "Installing media-server-specific packages..."
-    brew bundle --file "$DOTFILES_DIR/Brewfile.media-server" --no-lock
+    brew bundle --file "$DOTFILES_DIR/Brewfile.media-server"
   fi
 
   log_success "Brew packages installed"
