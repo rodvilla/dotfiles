@@ -1,1 +1,4 @@
 .DS_Store
+
+# Antidote generated plugin bundle (machine-specific paths)
+shell/plugins.zsh

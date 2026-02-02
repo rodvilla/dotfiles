@@ -62,27 +62,6 @@ export ZSH_WAKATIME_PROJECT_DETECTION=true
 [[ -f ~/.secrets ]] && source ~/.secrets
 
 # =============================================================================
-# NVM - Node Version Manager (Lazy Loaded for Performance)
-# =============================================================================
-# Lazy load NVM - only initializes when you first use node/npm/nvm
-lazy_load_nvm() {
-  unset -f node npm npx nvm
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-node() { lazy_load_nvm && node "$@"; }
-npm() { lazy_load_nvm && npm "$@"; }
-npx() { lazy_load_nvm && npx "$@"; }
-nvm() { lazy_load_nvm && nvm "$@"; }
-
-# =============================================================================
-# Rbenv - Ruby Version Manager
-# =============================================================================
-if command -v rbenv &> /dev/null; then
-  eval "$(rbenv init - zsh)"
-fi
-
-# =============================================================================
 # Antidote - Zsh Plugin Manager
 # =============================================================================
 # Set cache dir for OMZ plugins (required for docker completions, etc.)
@@ -107,6 +86,27 @@ antidote load ${DOTFILES}/shell/plugins.txt
 # Aliases
 # =============================================================================
 source ${DOTFILES}/shell/aliases.zsh
+
+# =============================================================================
+# NVM - Node Version Manager (Lazy Loaded for Performance)
+# =============================================================================
+# Lazy load NVM - only initializes when you first use node/npm/nvm
+lazy_load_nvm() {
+  unset -f node npm npx nvm
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+node() { lazy_load_nvm && node "$@"; }
+npm() { lazy_load_nvm && npm "$@"; }
+npx() { lazy_load_nvm && npx "$@"; }
+nvm() { lazy_load_nvm && nvm "$@"; }
+
+# =============================================================================
+# Rbenv - Ruby Version Manager
+# =============================================================================
+if command -v rbenv &> /dev/null; then
+  eval "$(rbenv init - zsh)"
+fi
 
 # =============================================================================
 # Oh My Posh Prompt
