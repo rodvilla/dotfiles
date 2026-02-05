@@ -158,19 +158,3 @@ if command -v fzf &> /dev/null; then
     export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
   fi
 fi
-
-# My personal and preferred alias
-alias c="clear"
-alias pa="php artisan"
-alias doc="docker"
-alias docc="docker compose"
-alias doce="docker exec -it"
-alias docce="docker compose exec -it"
-alias docfresh="docker compose down && docker compose up -d"
-alias hc="herd composer"
-alias hp="herd php"
-alias hpa="herd php artisan"
-alias yt="yarn test"
-alias ytw="yarn test --watch"
-alias t="tmux attach || tmux new -s base"
-alias code="code-insiders"
