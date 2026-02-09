@@ -83,6 +83,9 @@ source ${ZDOTDIR:-~}/.antidote/antidote.zsh
 # Plugin configuration (before loading)
 zstyle ':omz:plugins:nvm' autoload yes
 
+# Initialize completion system (must be before plugins that use compdef)
+autoload -Uz compinit && compinit
+
 # Load plugins from file
 antidote load ${DOTFILES}/shell/plugins.txt
 
