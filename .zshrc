@@ -66,12 +66,6 @@ export ZSH_WAKATIME_PROJECT_DETECTION=true
 [[ -f ~/.secrets ]] && source ~/.secrets
 
 # =============================================================================
-# Completion System
-# =============================================================================
-# Initialize completion system before plugins (required for compdef)
-autoload -Uz compinit && compinit
-
-# =============================================================================
 # Antidote - Zsh Plugin Manager
 # =============================================================================
 # Set cache dir for OMZ plugins (required for docker completions, etc.)

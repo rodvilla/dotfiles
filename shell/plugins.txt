@@ -23,8 +23,5 @@ zsh-users/zsh-autosuggestions
 djui/alias-tips
 jessarcher/zsh-artisan
 
-# Docker completions
-srijanshetty/docker-zsh
-
 # Syntax highlighting must be loaded last
 zsh-users/zsh-syntax-highlighting
