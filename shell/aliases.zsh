@@ -57,5 +57,4 @@ fi
 # Smarter cd with zoxide
 if command -v zoxide &> /dev/null; then
   eval "$(zoxide init zsh)"
-  alias cd="z"
 fi
