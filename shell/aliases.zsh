@@ -14,6 +14,15 @@ alias hp="herd php"
 alias hpa="herd php artisan"
 
 # =============================================================================
+# Homebrew
+# =============================================================================
+alias brupd="brew update"
+alias brupg="brew upgrade"
+alias brcle="brew cleanup"
+alias bis="brew install"
+alias bru="brew uninstall"
+
+# =============================================================================
 # Docker
 # =============================================================================
 alias doc="docker"
