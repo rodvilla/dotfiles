@@ -4,6 +4,8 @@
 
 # General
 alias c="clear"
+alias ghost="/Applications/Ghostty.app/Contents/MacOS/ghostty"
+alias t="tmux attach || tmux new -s base"
 
 # =============================================================================
 # PHP / Laravel
@@ -38,14 +40,17 @@ alias yt="yarn test"
 alias ytw="yarn test --watch"
 
 # =============================================================================
-# Tmux
-# =============================================================================
-alias t="tmux attach || tmux new -s base"
-
-# =============================================================================
 # Editor
 # =============================================================================
 alias code="code-insiders"
+
+# =============================================================================
+# AI
+# =============================================================================
+alias cl="claude"
+alias cld="claude --dangerously-skip-permissions"
+alias oco="opencode"
+alias ocom="opencode models"
 
 # =============================================================================
 # Modern CLI replacements (if installed)

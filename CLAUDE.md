@@ -19,6 +19,7 @@ Guidance for Claude Code when working with this dotfiles repository.
 ## Key Patterns
 
 - **Adding aliases**: Edit `shell/aliases.zsh`
+- **Adding shell hooks**: Edit `shell/hooks.zsh`
 - **Adding plugins**: Edit `shell/plugins.txt` (Antidote format)
 - **Adding packages**: Edit appropriate `Brewfile*` based on profile
 - **Ghostty settings**: Edit `config/ghostty/config`

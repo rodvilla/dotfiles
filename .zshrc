@@ -47,11 +47,18 @@ bindkey '^[[B' history-beginning-search-forward
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# Default editor (used by Ghostty +edit-config, git, etc.)
+export EDITOR="code-insiders --wait"
+export VISUAL="code-insiders --wait"
+
 # Java / Android
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home
-export ANDROID_HOME=~/Library/Android/sdk
-export ANDROID_SDK_ROOT=~/Library/Android/sdk
-export ANDROID_AVD_HOME=~/.android/avd
+# export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home
+# export ANDROID_HOME=~/Library/Android/sdk
+# export ANDROID_SDK_ROOT=~/Library/Android/sdk
+# export ANDROID_AVD_HOME=~/.android/avd
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
+export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
@@ -72,6 +79,9 @@ export ZSH_WAKATIME_PROJECT_DETECTION=true
 export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 [[ -d "$ZSH_CACHE_DIR/completions" ]] || mkdir -p "$ZSH_CACHE_DIR/completions"
 
+# Include OMZ completion cache in fpath for docker/kubectl completions
+fpath=("$ZSH_CACHE_DIR/completions" $fpath)
+
 # Clone antidote if needed
 if [[ ! -d ${ZDOTDIR:-~}/.antidote ]]; then
   git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
@@ -83,16 +93,35 @@ source ${ZDOTDIR:-~}/.antidote/antidote.zsh
 # Plugin configuration (before loading)
 zstyle ':omz:plugins:nvm' autoload yes
 
-# Initialize completion system (must be before plugins that use compdef)
-autoload -Uz compinit && compinit
+# Initialize completion system with daily dump caching
+# Must run BEFORE antidote load because plugins use compdef
+# -C skips the expensive fpath scan and reuses the cached dump
+autoload -Uz compinit
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 # Load plugins from file
 antidote load ${DOTFILES}/shell/plugins.txt
+
+# Compile zcompdump in background for faster loading
+{
+  if [[ -s ~/.zcompdump && (! -s ~/.zcompdump.zwc || ~/.zcompdump -nt ~/.zcompdump.zwc) ]]; then
+    zcompile ~/.zcompdump
+  fi
+} &!
 
 # =============================================================================
 # Aliases
 # =============================================================================
 source ${DOTFILES}/shell/aliases.zsh
+
+# =============================================================================
+# Shell Hooks
+# =============================================================================
+source ${DOTFILES}/shell/hooks.zsh
 
 # =============================================================================
 # NVM - Node Version Manager (Lazy Loaded for Performance)
