@@ -1,52 +1,46 @@
 # Ghostty Terminal Configuration
-# Migrated from iTerm2 "rodrigo" theme with enhancements
+
+command = /opt/homebrew/bin/tmux new-session -A -s base
 
 # =============================================================================
 # Font
 # =============================================================================
-font-family = JetBrainsMono Nerd Font
-font-size = 14
+font-family = Hack Nerd Font Mono
+font-size = 13
+font-thicken = true
+adjust-cell-height = 25%
 
 # =============================================================================
 # Colors - Custom dark theme with vibrant colors
 # =============================================================================
-background = 1e1e2e
-foreground = cdd6f4
-
-# Normal colors
-palette = 0=#45475a
-palette = 1=#f38ba8
-palette = 2=#a6e3a1
-palette = 3=#f9e2af
-palette = 4=#89b4fa
-palette = 5=#f5c2e7
-palette = 6=#94e2d5
-palette = 7=#bac2de
-
-# Bright colors
-palette = 8=#585b70
-palette = 9=#f38ba8
-palette = 10=#a6e3a1
-palette = 11=#f9e2af
-palette = 12=#89b4fa
-palette = 13=#f5c2e7
-palette = 14=#94e2d5
-palette = 15=#a6adc8
+theme = 0x96f
+background = #020111
+foreground = #fcfcfa
+selection-background = #fcfcfa
+selection-foreground = #262427
+cursor-color = #fcfcfa
+cursor-text = #000000
+background-opacity = 0.88
+background-blur = 25
 
 # =============================================================================
 # Window
 # =============================================================================
 background-blur-radius = 25
-window-padding-x = 12
-window-padding-y = 8
 window-decoration = true
+window-height = 55
+window-width = 319
+window-step-resize = true
 macos-titlebar-style = tabs
 confirm-close-surface = false
+window-padding-balance = true
+window-padding-x = 5
+#window-padding-y = 0
 
 # =============================================================================
 # Cursor
 # =============================================================================
-cursor-style = underline
+cursor-style = block
 cursor-style-blink = true
 
 # =============================================================================
@@ -59,6 +53,7 @@ shell-integration-features = cursor,sudo,title
 # Clipboard
 # =============================================================================
 copy-on-select = clipboard
+clipboard-read = allow
 clipboard-paste-protection = false
 
 # =============================================================================
@@ -69,14 +64,15 @@ quick-terminal-position = top
 quick-terminal-animation-duration = 0.15
 
 # =============================================================================
-# Keybindings
+# Hotkeys
 # =============================================================================
-# Alt+arrow for word navigation
-macos-option-as-alt = true
-keybind = alt+left=text:\x1bb
-keybind = alt+right=text:\x1bf
+keybind = super+alt+left=text:\x1bb
+keybind = super+alt+right=text:\x1bf
+keybind = super+left=text:\x1b[H
 
 # =============================================================================
 # Misc
 # =============================================================================
 mouse-hide-while-typing = true
+mouse-scroll-multiplier = 1
+macos-option-as-alt = true
