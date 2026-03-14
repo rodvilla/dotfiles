@@ -18,8 +18,6 @@ background = #020111
 foreground = #fcfcfa
 selection-background = #fcfcfa
 selection-foreground = #262427
-cursor-color = #fcfcfa
-cursor-text = #000000
 background-opacity = 0.88
 background-blur = 25
 
@@ -42,6 +40,8 @@ window-padding-x = 5
 # =============================================================================
 cursor-style = block
 cursor-style-blink = true
+cursor-color = #fcfcfa
+cursor-text = #000000
 
 # =============================================================================
 # Shell Integration
