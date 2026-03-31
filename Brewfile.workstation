@@ -10,7 +10,6 @@ tap "wix/brew"
 # AWS & Cloud
 # =============================================================================
 brew "awscli"
-brew "aws-elasticbeanstalk"
 cask "aws-vpn-client"
 
 # =============================================================================
@@ -25,12 +24,7 @@ brew "kubectx"
 brew "watchman"
 brew "rbenv"
 brew "mysql-client"
-brew "python@3.10"
 brew "commitlint"
-brew "dive"           # Docker image explorer
-
-# React Native / Mobile
-brew "wix/brew/applesimutils"
 
 # =============================================================================
 # Browsers
@@ -64,7 +58,6 @@ cask "react-native-debugger"
 # =============================================================================
 # Android Development
 # =============================================================================
-cask "adoptopenjdk"
 cask "android-file-transfer"
 cask "android-platform-tools"
 
@@ -79,10 +72,8 @@ cask "mouseless"
 cask "superwhisper"
 
 # =============================================================================
-# Downloads & Remote
+# Remote
 # =============================================================================
-cask "folx"
-cask "teamviewer"
 cask "vnc-viewer"
 
 # =============================================================================
