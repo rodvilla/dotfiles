@@ -83,6 +83,17 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 		} catch {}
 	}
 
+	const stripIcon = async (): Promise<void> => {
+		try {
+			const current = (await $`tmux display-message -t ${paneId} -p '#{window_name}'`.text()).trim()
+			const clean = current.replace(/^[⚡✓❓] /, "")
+			if (clean !== current) {
+				await $`tmux rename-window -t ${paneId} ${clean}`.quiet()
+				await $`tmux set-window-option -t ${paneId} -u window-status-style`.quiet()
+			}
+		} catch {}
+	}
+
 	const renameWindow = async (icon: string): Promise<void> => {
 		try {
 			const current = (await $`tmux display-message -t ${paneId} -p '#{window_name}'`.text()).trim()
@@ -132,7 +143,8 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 						if (waitingForHuman) {
 							action = "skipped:waitingForHuman"
 						} else if (await isWindowActive()) {
-							action = "skipped:windowActive"
+							await stripIcon()
+							action = "stripIcon:windowActive"
 						} else {
 							await renameWindow("✓")
 							const played = await playSound("done", sessionID)
@@ -141,7 +153,8 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 					} else if (event.type === "session.error") {
 						waitingForHuman = false
 						if (await isWindowActive()) {
-							action = "skipped:windowActive"
+							await stripIcon()
+							action = "stripIcon:windowActive"
 						} else {
 							await renameWindow("✓")
 							const played = await playSound("done", sessionID)
@@ -164,10 +177,11 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 					if (isSubagent) {
 						action = "skipped:subagent"
 					} else if (input.tool === "question") {
+						waitingForHuman = true
 						if (await isWindowActive()) {
-							action = "skipped:windowActive"
+							await stripIcon()
+							action = "stripIcon:windowActive"
 						} else {
-							waitingForHuman = true
 							await renameWindow("❓")
 							await playSound("ask", sessionID)
 							action = "rename:❓ sound:ask"
@@ -184,8 +198,11 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 			}
 		},
 		"permission.ask": async () => {
-			if (await isWindowActive()) return
 			waitingForHuman = true
+			if (await isWindowActive()) {
+				await stripIcon()
+				return
+			}
 			await renameWindow("❓")
 			await playSound("ask", "")
 		},

@@ -20,18 +20,12 @@ case "$HOOK" in
     TOOL=$(echo "$JSON" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' \
       | head -1 | sed 's/.*"tool_name"[[:space:]]*:[[:space:]]*"//;s/"//')
     if [ "$TOOL" = "AskUserQuestion" ]; then
-      # Skip question notification if focused
-      [ "$ACTIVE" != "1" ] || { exit 0; }
       ICON="❓"; SOUND="ask"; COLOR="colour196"
     else
       ICON="⚡"
     fi
     ;;
-  Stop)
-    # Skip done notification if focused
-    [ "$ACTIVE" != "1" ] || { exit 0; }
-    ICON="✓"; SOUND="done"; COLOR="colour82"
-    ;;
+  Stop) ICON="✓"; SOUND="done"; COLOR="colour82" ;;
   Notification) exit 0 ;;
   *) exit 0 ;;
 esac
@@ -39,6 +33,14 @@ esac
 # Rename window
 CURRENT=$(tmux display-message -t "$PANE_ID" -p '#{window_name}' 2>/dev/null) || exit 0
 CLEAN=$(echo "$CURRENT" | sed 's/^[⚡✓❓] //')
+
+# If window is focused: ⚡ always shows, but ✓/❓ just strip any existing icon
+if [ "$ACTIVE" = "1" ] && [ "$ICON" != "⚡" ]; then
+  [ "$CURRENT" != "$CLEAN" ] && tmux rename-window -t "$PANE_ID" "$CLEAN" 2>/dev/null
+  tmux set-window-option -t "$PANE_ID" -u window-status-style 2>/dev/null
+  exit 0
+fi
+
 tmux rename-window -t "$PANE_ID" "$ICON $CLEAN" 2>/dev/null
 
 # Set window status color based on agent state
