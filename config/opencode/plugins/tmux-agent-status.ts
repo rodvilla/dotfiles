@@ -58,11 +58,37 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 		}
 	}
 
+	const isWindowActive = async (): Promise<boolean> => {
+		try {
+			const active = (await $`tmux display-message -t ${paneId} -p '#{window_active}'`.text()).trim()
+			return active === "1"
+		} catch {
+			return false
+		}
+	}
+
+	const colorForIcon: Record<string, string> = {
+		"✓": "fg=colour82,bg=colour235",
+		"❓": "fg=colour196,bg=colour235",
+	}
+
+	const setWindowColor = async (icon: string): Promise<void> => {
+		try {
+			const style = colorForIcon[icon]
+			if (style) {
+				await $`tmux set-window-option -t ${paneId} window-status-style ${style}`.quiet()
+			} else {
+				await $`tmux set-window-option -t ${paneId} -u window-status-style`.quiet()
+			}
+		} catch {}
+	}
+
 	const renameWindow = async (icon: string): Promise<void> => {
 		try {
 			const current = (await $`tmux display-message -t ${paneId} -p '#{window_name}'`.text()).trim()
 			const clean = current.replace(/^[⚡✓❓] /, "")
 			await $`tmux rename-window -t ${paneId} ${icon} ${clean}`.quiet()
+			await setWindowColor(icon)
 		} catch (error) {
 			await appendLog(`[${timestamp()}] ERROR scope=renameWindow caught=${JSON.stringify(describeError(error))}`)
 		}
@@ -103,18 +129,24 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 					if (isSubagent) {
 						action = "skipped:subagent"
 					} else if (event.type === "session.idle") {
-						if (!waitingForHuman) {
+						if (waitingForHuman) {
+							action = "skipped:waitingForHuman"
+						} else if (await isWindowActive()) {
+							action = "skipped:windowActive"
+						} else {
 							await renameWindow("✓")
 							const played = await playSound("done", sessionID)
 							action = played ? "rename:✓ sound:done" : "skipped:debounce"
-						} else {
-							action = "skipped:waitingForHuman"
 						}
 					} else if (event.type === "session.error") {
 						waitingForHuman = false
-						await renameWindow("✓")
-						const played = await playSound("done", sessionID)
-						action = played ? "rename:✓ sound:done" : "skipped:debounce"
+						if (await isWindowActive()) {
+							action = "skipped:windowActive"
+						} else {
+							await renameWindow("✓")
+							const played = await playSound("done", sessionID)
+							action = played ? "rename:✓ sound:done" : "skipped:debounce"
+						}
 					}
 				} catch (error) {
 					action = `error:${describeError(error)}`
@@ -132,10 +164,14 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 					if (isSubagent) {
 						action = "skipped:subagent"
 					} else if (input.tool === "question") {
-						waitingForHuman = true
-						await renameWindow("❓")
-						await playSound("ask", sessionID)
-						action = "rename:❓ sound:ask"
+						if (await isWindowActive()) {
+							action = "skipped:windowActive"
+						} else {
+							waitingForHuman = true
+							await renameWindow("❓")
+							await playSound("ask", sessionID)
+							action = "rename:❓ sound:ask"
+						}
 					} else {
 						waitingForHuman = false
 						await renameWindow("⚡")
@@ -148,6 +184,7 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 			}
 		},
 		"permission.ask": async () => {
+			if (await isWindowActive()) return
 			waitingForHuman = true
 			await renameWindow("❓")
 			await playSound("ask", "")

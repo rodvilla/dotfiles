@@ -9,6 +9,10 @@ PANE_ID="${TMUX_PANE:-}"
 JSON=$(cat)
 HOOK="$1"
 SOUND=""
+COLOR=""
+
+# Check if the window is focused
+ACTIVE=$(tmux display-message -t "$PANE_ID" -p '#{window_active}' 2>/dev/null) || true
 
 case "$HOOK" in
   UserPromptSubmit) ICON="⚡" ;;
@@ -16,12 +20,18 @@ case "$HOOK" in
     TOOL=$(echo "$JSON" | grep -o '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' \
       | head -1 | sed 's/.*"tool_name"[[:space:]]*:[[:space:]]*"//;s/"//')
     if [ "$TOOL" = "AskUserQuestion" ]; then
-      ICON="❓"; SOUND="ask"
+      # Skip question notification if focused
+      [ "$ACTIVE" != "1" ] || { exit 0; }
+      ICON="❓"; SOUND="ask"; COLOR="colour196"
     else
       ICON="⚡"
     fi
     ;;
-  Stop) ICON="✓"; SOUND="done" ;;
+  Stop)
+    # Skip done notification if focused
+    [ "$ACTIVE" != "1" ] || { exit 0; }
+    ICON="✓"; SOUND="done"; COLOR="colour82"
+    ;;
   Notification) exit 0 ;;
   *) exit 0 ;;
 esac
@@ -30,6 +40,13 @@ esac
 CURRENT=$(tmux display-message -t "$PANE_ID" -p '#{window_name}' 2>/dev/null) || exit 0
 CLEAN=$(echo "$CURRENT" | sed 's/^[⚡✓❓] //')
 tmux rename-window -t "$PANE_ID" "$ICON $CLEAN" 2>/dev/null
+
+# Set window status color based on agent state
+if [ -n "$COLOR" ]; then
+  tmux set-window-option -t "$PANE_ID" window-status-style "fg=$COLOR,bg=colour235" 2>/dev/null
+else
+  tmux set-window-option -t "$PANE_ID" -u window-status-style 2>/dev/null
+fi
 
 # Play notification sound (background, non-blocking)
 if [ -n "$SOUND" ]; then
