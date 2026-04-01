@@ -2,6 +2,8 @@
 
 command = /opt/homebrew/bin/tmux new-session -A -s base
 
+working-directory = ~/Developer
+
 # =============================================================================
 # Font
 # =============================================================================
@@ -69,6 +71,8 @@ quick-terminal-animation-duration = 0.15
 keybind = super+alt+left=text:\x1bb
 keybind = super+alt+right=text:\x1bf
 keybind = super+left=text:\x1b[H
+keybind = alt+left=unbind
+keybind = alt+right=unbind
 
 # =============================================================================
 # Misc

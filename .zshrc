@@ -38,8 +38,11 @@ setopt COMPLETE_IN_WORD      # Complete from cursor position
 setopt ALWAYS_TO_END         # Move cursor to end after completion
 
 # History search: type prefix then use up/down to search matching commands
-bindkey '^[[A' history-beginning-search-backward
-bindkey '^[[B' history-beginning-search-forward
+autoload -U history-beginning-search-backward-end history-beginning-search-forward-end
+zle -N history-beginning-search-backward-end
+zle -N history-beginning-search-forward-end
+bindkey '^[[A' history-beginning-search-backward-end
+bindkey '^[[B' history-beginning-search-forward-end
 
 # =============================================================================
 # Environment Variables
