@@ -9,23 +9,70 @@
  */
 
 import type { Plugin } from "@opencode-ai/plugin"
+import { appendFile } from "node:fs/promises"
 
-export const TmuxAgentStatusPlugin: Plugin = async ({ $ }) => {
+const logFile = "/tmp/tmux-agent-status.txt"
+
+export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 	if (!process.env.TMUX) return {}
 
 	const paneId = process.env.TMUX_PANE || ""
 	if (!paneId) return {}
+
+	let logQueue: Promise<void> = Promise.resolve()
+	let lastSoundAt = 0
+	let waitingForHuman = false
+
+	const timestamp = (): string => new Date().toISOString()
+
+	const appendLog = async (line: string): Promise<void> => {
+		logQueue = logQueue
+			.then(async () => {
+				await appendFile(logFile, `${line}\n`)
+			})
+			.catch(() => {})
+		await logQueue
+	}
+
+	await appendLog(`[${timestamp()}] --- startup paneId=${paneId} ---`)
+
+	const describeError = (error: unknown): string => {
+		if (error instanceof Error) return error.message
+		return String(error)
+	}
+
+	const getSessionID = (properties: unknown): string => {
+		const props = properties as Record<string, unknown> | undefined
+		const sessionID = props?.sessionID
+		return typeof sessionID === "string" ? sessionID : ""
+	}
+
+	const isSubagentSession = async (sessionID: string): Promise<boolean> => {
+		if (!sessionID) return false
+		try {
+			const response = await client.session.get({ path: { id: sessionID } })
+			return Boolean((response as { parentID?: unknown } | undefined)?.parentID)
+		} catch (error) {
+			await appendLog(`[${timestamp()}] ERROR scope=session.check sessionID=${sessionID} caught=${JSON.stringify(describeError(error))}`)
+			return false
+		}
+	}
 
 	const renameWindow = async (icon: string): Promise<void> => {
 		try {
 			const current = (await $`tmux display-message -t ${paneId} -p '#{window_name}'`.text()).trim()
 			const clean = current.replace(/^[⚡✓❓] /, "")
 			await $`tmux rename-window -t ${paneId} ${icon} ${clean}`.quiet()
-		} catch {}
+		} catch (error) {
+			await appendLog(`[${timestamp()}] ERROR scope=renameWindow caught=${JSON.stringify(describeError(error))}`)
+		}
 	}
 
-	const playSound = async (type: "done" | "ask"): Promise<void> => {
+	const playSound = async (type: "done" | "ask", sessionID: string): Promise<boolean> => {
 		try {
+			if (type === "done" && Date.now() - lastSoundAt < 3000) {
+				return false
+			}
 			let sound = (await $`tmux show-option -gqv @agent-sound`.text()).trim() || "Glass"
 			if (type === "ask") {
 				const askSound = (await $`tmux show-option -gqv @agent-ask-sound`.text()).trim()
@@ -34,39 +81,76 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $ }) => {
 			if (sound !== "none") {
 				await $`afplay /System/Library/Sounds/${sound}.aiff`.quiet()
 			}
-		} catch {}
+			if (type === "done") {
+				lastSoundAt = Date.now()
+			}
+			return true
+		} catch (error) {
+			await appendLog(
+				`[${timestamp()}] ERROR scope=playSound type=${type} sessionID=${sessionID} caught=${JSON.stringify(describeError(error))}`,
+			)
+			return false
+		}
 	}
 
-	let waitingForHuman = false
-
 	return {
-		event: async ({ event }) => {
-			if (event.type === "session.idle") {
-				if (!waitingForHuman) {
-					await renameWindow("✓")
-					await playSound("done")
-				}
-			}
-			if (event.type === "session.error") {
-				waitingForHuman = false
-				await renameWindow("✓")
-				await playSound("done")
+			event: async ({ event }) => {
+				const sessionID = getSessionID(event.properties)
+				const waitingAtStart = waitingForHuman
+				let action = "skipped:ignored"
+				try {
+					const isSubagent = await isSubagentSession(sessionID)
+					if (isSubagent) {
+						action = "skipped:subagent"
+					} else if (event.type === "session.idle") {
+						if (!waitingForHuman) {
+							await renameWindow("✓")
+							const played = await playSound("done", sessionID)
+							action = played ? "rename:✓ sound:done" : "skipped:debounce"
+						} else {
+							action = "skipped:waitingForHuman"
+						}
+					} else if (event.type === "session.error") {
+						waitingForHuman = false
+						await renameWindow("✓")
+						const played = await playSound("done", sessionID)
+						action = played ? "rename:✓ sound:done" : "skipped:debounce"
+					}
+				} catch (error) {
+					action = `error:${describeError(error)}`
+				} finally {
+				await appendLog(
+					`[${timestamp()}] EVENT type=${event.type} sessionID=${sessionID || ""} waitingForHuman=${waitingAtStart} action=${action}`,
+				)
 			}
 		},
-		"tool.execute.before": async (input) => {
-			if (input.tool === "question") {
-				waitingForHuman = true
-				await renameWindow("❓")
-				await playSound("ask")
-			} else {
-				waitingForHuman = false
-				await renameWindow("⚡")
+			"tool.execute.before": async (input) => {
+				const sessionID = input.sessionID || ""
+				let action = "skipped:ignored"
+				try {
+					const isSubagent = await isSubagentSession(sessionID)
+					if (isSubagent) {
+						action = "skipped:subagent"
+					} else if (input.tool === "question") {
+						waitingForHuman = true
+						await renameWindow("❓")
+						await playSound("ask", sessionID)
+						action = "rename:❓ sound:ask"
+					} else {
+						waitingForHuman = false
+						await renameWindow("⚡")
+						action = "rename:⚡"
+					}
+				} catch (error) {
+					action = `error:${describeError(error)}`
+				} finally {
+				await appendLog(`[${timestamp()}] TOOL tool=${input.tool} sessionID=${sessionID} action=${action}`)
 			}
 		},
 		"permission.ask": async () => {
 			waitingForHuman = true
 			await renameWindow("❓")
-			await playSound("ask")
+			await playSound("ask", "")
 		},
 	}
 }
