@@ -78,5 +78,5 @@ keybind = alt+right=unbind
 # Misc
 # =============================================================================
 mouse-hide-while-typing = true
-mouse-scroll-multiplier = 1
+mouse-scroll-multiplier = 0.375
 macos-option-as-alt = true

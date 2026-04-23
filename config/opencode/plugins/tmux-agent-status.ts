@@ -4,12 +4,15 @@
  * and plays notification sounds on done/ask events.
  *
  * Sound config via tmux options:
- *   set -g @agent-sound "Glass"       # macOS sound name, or "none"
- *   set -g @agent-ask-sound "Ping"    # optional separate sound for ask
+ *   set -g @agent-sound "Glass"                    # macOS system sound, or "none"
+ *   set -g @agent-sound "NaviHey"                  # custom sound from ~/.dotfiles/sounds/
+ *   set -g @agent-sound "NaviHey,NaviListen,Glass" # comma-separated list (random pick)
+ *   set -g @agent-ask-sound "Ping"                 # optional separate sound for ask
  */
 
 import type { Plugin } from "@opencode-ai/plugin"
 import { appendFile } from "node:fs/promises"
+import { existsSync } from "node:fs"
 
 const logFile = "/tmp/tmux-agent-status.txt"
 
@@ -18,6 +21,24 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 
 	const paneId = process.env.TMUX_PANE || ""
 	if (!paneId) return {}
+
+	const CUSTOM_SOUNDS_DIR = `${process.env.HOME}/.dotfiles/sounds`
+
+	const resolveSoundPath = (name: string): string | null => {
+		for (const ext of ["mp3", "aiff", "wav", "m4a"]) {
+			const custom = `${CUSTOM_SOUNDS_DIR}/${name}.${ext}`
+			if (existsSync(custom)) return custom
+		}
+		const system = `/System/Library/Sounds/${name}.aiff`
+		if (existsSync(system)) return system
+		if (existsSync(name)) return name
+		return null
+	}
+
+	const pickRandom = (list: string): string => {
+		const items = list.split(",").map(s => s.trim()).filter(Boolean)
+		return items[Math.floor(Math.random() * items.length)]
+	}
 
 	let logQueue: Promise<void> = Promise.resolve()
 	let lastSoundAt = 0
@@ -110,13 +131,16 @@ export const TmuxAgentStatusPlugin: Plugin = async ({ $, client }) => {
 			if (type === "done" && Date.now() - lastSoundAt < 3000) {
 				return false
 			}
-			let sound = (await $`tmux show-option -gqv @agent-sound`.text()).trim() || "Glass"
+			let soundList = (await $`tmux show-option -gqv @agent-sound`.text()).trim() || "Glass"
 			if (type === "ask") {
 				const askSound = (await $`tmux show-option -gqv @agent-ask-sound`.text()).trim()
-				if (askSound) sound = askSound
+				if (askSound) soundList = askSound
 			}
-			if (sound !== "none") {
-				await $`afplay /System/Library/Sounds/${sound}.aiff`.quiet()
+			const sound = pickRandom(soundList)
+			if (sound === "none") return true
+			const soundPath = resolveSoundPath(sound)
+			if (soundPath) {
+				await $`afplay ${soundPath}`.quiet()
 			}
 			if (type === "done") {
 				lastSoundAt = Date.now()
