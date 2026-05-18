@@ -8,6 +8,7 @@
 #   workstation   - Full development environment (IDEs, databases, etc.)
 #   media-server  - Basic shell setup for remote access
 #   minimal       - Just shell and essential CLI tools
+#   links-only    - Only create directories and symlinks, no package installs
 # =============================================================================
 
 set -euo pipefail
@@ -29,6 +30,7 @@ show_usage() {
   echo "  workstation   - Full development environment (IDEs, databases, etc.)"
   echo "  media-server  - Basic shell setup for remote access"
   echo "  minimal       - Just shell and essential CLI tools"
+  echo "  links-only    - Only create directories and symlinks, no package installs"
   echo ""
   echo "Example: ./install.sh workstation"
   echo ""
@@ -207,9 +209,11 @@ setup_directories() {
   log_info "Setting up directories..."
 
   mkdir -p "$HOME/Developer"
+  mkdir -p "$HOME/.claude"
   mkdir -p "$HOME/.config/ghostty"
-  mkdir -p "$HOME/.config/opencode/plugins"
   mkdir -p "$HOME/.config/ohmyposh"
+  mkdir -p "$HOME/.config/opencode"
+  mkdir -p "$HOME/.config/zed"
 
   log_success "Directories created"
 }
@@ -237,7 +241,32 @@ setup_symlinks() {
 
   # Opencode configuration
   symlink "$DOTFILES_DIR/config/opencode/oh-my-opencode.json" "$HOME/.config/opencode/oh-my-opencode.json"
-  symlink "$DOTFILES_DIR/config/opencode/plugins/tmux-agent-status.ts" "$HOME/.config/opencode/plugins/tmux-agent-status.ts"
+  symlink "$DOTFILES_DIR/config/opencode/oh-my-opencode-slim.json" "$HOME/.config/opencode/oh-my-opencode-slim.json"
+  symlink "$DOTFILES_DIR/config/opencode/AGENTS.md" "$HOME/.config/opencode/AGENTS.md"
+  symlink "$DOTFILES_DIR/config/opencode/opencode.json" "$HOME/.config/opencode/opencode.json"
+  symlink "$DOTFILES_DIR/config/opencode/tui.json" "$HOME/.config/opencode/tui.json"
+  symlink "$DOTFILES_DIR/config/opencode/command" "$HOME/.config/opencode/command"
+  symlink "$DOTFILES_DIR/config/opencode/commands" "$HOME/.config/opencode/commands"
+  symlink "$DOTFILES_DIR/config/opencode/plugins" "$HOME/.config/opencode/plugins"
+  symlink "$DOTFILES_DIR/config/opencode/profiles" "$HOME/.config/opencode/profiles"
+  symlink "$DOTFILES_DIR/config/opencode/skills" "$HOME/.config/opencode/skills"
+
+  # Claude configuration (curated; local/session/auth files stay out of repo)
+  symlink "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
+  symlink "$DOTFILES_DIR/config/claude/RTK.md" "$HOME/.claude/RTK.md"
+  symlink "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
+  symlink "$DOTFILES_DIR/config/claude/remote-settings.json" "$HOME/.claude/remote-settings.json"
+  symlink "$DOTFILES_DIR/config/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+  symlink "$DOTFILES_DIR/config/claude/commands" "$HOME/.claude/commands"
+  symlink "$DOTFILES_DIR/config/claude/hooks" "$HOME/.claude/hooks"
+  symlink "$DOTFILES_DIR/config/claude/rules" "$HOME/.claude/rules"
+  symlink "$DOTFILES_DIR/config/claude/skills" "$HOME/.claude/skills"
+
+  # Zed editor configuration
+  symlink "$DOTFILES_DIR/config/zed/settings.json" "$HOME/.config/zed/settings.json"
+  symlink "$DOTFILES_DIR/config/zed/keymap.json" "$HOME/.config/zed/keymap.json"
+  symlink "$DOTFILES_DIR/config/zed/tasks.json" "$HOME/.config/zed/tasks.json"
+  symlink "$DOTFILES_DIR/config/zed/themes" "$HOME/.config/zed/themes"
 
   log_success "Symlinks created"
 }
@@ -255,12 +284,12 @@ main() {
 
   # Validate profile
   case "$PROFILE" in
-    workstation|media-server|minimal)
+    workstation|media-server|minimal|links-only)
       log_info "Using profile: $PROFILE"
       ;;
     *)
       log_error "Unknown profile: $PROFILE"
-      log_info "Valid profiles: workstation, media-server, minimal"
+      log_info "Valid profiles: workstation, media-server, minimal, links-only"
       exit 1
       ;;
   esac
@@ -275,6 +304,13 @@ main() {
 
   # Core installation (all profiles)
   log_info "Starting core installation..."
+  if [[ "$PROFILE" == "links-only" ]]; then
+    setup_directories
+    setup_symlinks
+    log_success "Links-only setup complete"
+    exit 0
+  fi
+
   install_homebrew
   setup_directories
   setup_symlinks
