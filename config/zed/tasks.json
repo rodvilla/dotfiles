@@ -1,0 +1,20 @@
+[
+  {
+    "label": "PHPUnit: current test",
+    "command": "runner=./vendor/bin/phpunit; if [ ! -x \"$runner\" ]; then runner=phpunit; fi; test=$(printf '%s\\n' \"$ZED_SYMBOL\" | awk -F ' > ' '{print $NF}'); \"$runner\" --filter \"$test\" \"$ZED_FILE\"",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "always",
+    "save": "current"
+  },
+  {
+    "label": "PHPUnit: current file",
+    "command": "runner=./vendor/bin/phpunit; if [ ! -x \"$runner\" ]; then runner=phpunit; fi; \"$runner\" \"$ZED_FILE\"",
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "always",
+    "save": "current"
+  }
+]

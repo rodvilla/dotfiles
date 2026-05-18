@@ -1,31 +1,44 @@
 # =============================================================================
-# Brewfile - Base packages for all machines
+# Brewfile - Shared packages for all machines
 # =============================================================================
 
 # Taps
+tap "anomalyco/tap"
 tap "jandedobbeleer/oh-my-posh"
+tap "oven-sh/bun"
+
 # =============================================================================
-# CLI Tools - Essential
+# CLI Tools - Core
 # =============================================================================
 brew "git"
-brew "zsh"
-brew "tmux"
+brew "gh"
 brew "jq"
 brew "mas"
+brew "opencode"
+brew "rtk"
+brew "tmux"
+brew "zsh"
 brew "chezmoi"
-
-# Oh My Posh prompt
-brew "jandedobbeleer/oh-my-posh/oh-my-posh"
 
 # =============================================================================
 # Modern CLI Replacements
 # =============================================================================
-brew "bat"        # Better cat
-brew "eza"        # Better ls
-brew "fd"         # Better find
-brew "fzf"        # Fuzzy finder
-brew "ripgrep"    # Better grep
-brew "zoxide"     # Smarter cd
+brew "bat"
+brew "eza"
+brew "fd"
+brew "fzf"
+brew "ripgrep"
+brew "tree"
+brew "watch"
+brew "zoxide"
+
+# =============================================================================
+# Local Development Utilities
+# =============================================================================
+brew "bun"
+brew "cloudflared"
+brew "jandedobbeleer/oh-my-posh/oh-my-posh"
+brew "lefthook"
 
 # =============================================================================
 # Fonts
@@ -38,47 +51,3 @@ cask "font-sf-mono-for-powerline"
 # Terminal
 # =============================================================================
 cask "ghostty"
-
-# =============================================================================
-# Productivity
-# =============================================================================
-cask "raycast"
-cask "hiddenbar"
-cask "stats"
-
-
-# =============================================================================
-# Communication
-# =============================================================================
-cask "slack@beta"
-cask "discord"
-cask "telegram"
-cask "whatsapp"
-
-# =============================================================================
-# Media
-# =============================================================================
-cask "spotify"
-cask "boom-3d"
-
-# =============================================================================
-# Utilities
-# =============================================================================
-cask "lunar"
-cask "istat-menus"
-cask "karabiner-elements"
-
-# =============================================================================
-# Cloud & Storage
-# =============================================================================
-cask "google-drive"
-
-# =============================================================================
-# Mac App Store
-# =============================================================================
-mas "Amphetamine", id: 937984704
-mas "Bitwarden", id: 1352778147
-mas "Tailscale", id: 1475387142
-mas "GIPHY CAPTURE", id: 668208984
-mas "Spark", id: 1176895641
-mas "Unsplash Wallpapers", id: 1284863847

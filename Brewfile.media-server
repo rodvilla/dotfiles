@@ -1,13 +1,5 @@
 # =============================================================================
-# Brewfile.media-server - Minimal packages for media server
+# Brewfile.media-server - Lightweight remote machine additions
 # =============================================================================
-# Lightweight setup for remote access and basic management
-# Plex and other media apps are installed separately
-
-# Note: This extends the base Brewfile which includes:
-# - Shell tools (zsh, tmux, oh-my-posh)
-# - Modern CLI tools (bat, eza, fzf, etc.)
-# - Ghostty terminal
-
-# No additional packages needed - base Brewfile covers essentials
-# Add media-server specific tools here if needed in the future
+# Shared shell tooling comes from Brewfile.
+# Add remote-host-specific packages here if you need them later.

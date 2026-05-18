@@ -1,6 +1,6 @@
 # Rod's Dotfiles
 
-Personal dotfiles for macOS development environment. Configures Zsh, Ghostty terminal, Tmux, Oh My Posh prompt, and manages packages via Homebrew.
+Personal dotfiles for macOS development environment. Configures Zsh, Ghostty terminal, Tmux, Oh My Posh prompt, Claude Code, OpenCode, Zed, and manages packages via Homebrew.
 
 ## Installation
 
@@ -13,10 +13,16 @@ cd ~/.dotfiles
 ./bin/install.sh workstation    # Full dev environment
 ./bin/install.sh media-server   # Basic shell for remote access
 ./bin/install.sh minimal        # Just essential CLI tools
+./bin/install.sh links-only     # Only refresh managed symlinks
 
 # Restore secrets (after Google Drive sync)
 ./bin/secrets.sh
 ```
+
+Notes:
+- The installer creates and uses `~/Developer` as the default working directory.
+- If you are not signed in to the Mac App Store yet, `mas` apps are skipped automatically. Sign in later and rerun the installer.
+- `bin/secrets.sh` defaults to your Google Drive backup path, but you can override it with `SECRETS_FOLDER=/path/to/Secrets ./bin/secrets.sh`.
 
 ## Features & Quick Reference
 
@@ -114,10 +120,13 @@ These are auto-aliased when installed:
 dotfiles/
 ├── bin/
 │   ├── install.sh              # Installation script with profile support
-│   └── secrets.sh              # Restore SSH keys from backup
+│   └── secrets.sh              # Restore secrets and SSH config from backup
 ├── config/
+│   ├── claude/                  # Claude Code settings, commands, hooks, rules, skills
 │   ├── ghostty/config          # Ghostty terminal configuration
-│   └── ohmyposh/config.toml    # Oh My Posh prompt theme
+│   ├── ohmyposh/config.toml    # Oh My Posh prompt theme
+│   ├── opencode/               # OpenCode settings, commands, profiles, skills, plugins
+│   └── zed/                    # Zed editor settings, keymap, tasks, themes
 ├── shell/
 │   ├── aliases.zsh             # Shell aliases
 │   └── plugins.txt             # Antidote plugin list
@@ -125,9 +134,10 @@ dotfiles/
 ├── .tmux.conf                  # Tmux configuration
 ├── .gitconfig                  # Git configuration
 ├── .npmrc                      # NPM registry config
-├── Brewfile                    # Base packages (all machines)
-├── Brewfile.workstation        # Dev-specific packages
-└── Brewfile.media-server       # Media server packages
+├── Brewfile                    # Shared shell and terminal packages
+├── Brewfile.workstation        # Full workstation packages
+├── Brewfile.media-server       # Media server packages
+└── sounds/                     # Custom notification sounds
 ```
 
 ## Key Technologies
@@ -139,6 +149,8 @@ dotfiles/
 | Terminal | [Ghostty](https://ghostty.org/) |
 | Prompt | [Oh My Posh](https://ohmyposh.dev/) |
 | Multiplexer | Tmux |
+| Editor | [Zed](https://zed.dev/) |
+| AI Coding | Claude Code, OpenCode |
 | Package Manager | Homebrew |
 | Dotfile Manager | [Chezmoi](https://chezmoi.io/) |
 
@@ -171,10 +183,10 @@ cd        # zoxide
 
 | Profile | Use Case |
 |---------|----------|
-| `workstation` | Full dev environment: IDEs, databases, API tools, VSCode extensions |
-| `media-server` | Basic shell setup for remote access via SSH/Tailscale |
-| `minimal` | Just essential CLI tools (fzf, bat, eza, ripgrep, etc.) |
+| `workstation` | Full dev environment: editors, databases, cloud/mobile tooling, and VS Code extensions |
+| `media-server` | Shared shell setup plus any future remote-specific packages |
+| `minimal` | Shared shell and terminal setup without workstation-only extras |
 
 ## Development Stack
 
-Laravel/PHP (Herd), Node.js (NVM), Ruby (Rbenv), Docker, Kubernetes
+Laravel/PHP (Herd), Node.js (NVM), Ruby (Rbenv), OrbStack, Kubernetes, Android tooling

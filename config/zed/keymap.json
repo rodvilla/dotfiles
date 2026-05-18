@@ -1,0 +1,69 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      // "j k": "vim::NormalBefore"
+    },
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      // "shift shift": "file_finder::Toggle"
+      "cmd-b": "workspace::ToggleRightDock",
+      "alt-cmd-b": "workspace::ToggleLeftDock",
+      "alt-cmd-k": ["task::Spawn", { "task_name": "PHPUnit: current test" }],
+      "alt-cmd-shift-k": [
+        "task::Spawn",
+        { "task_name": "PHPUnit: current file" },
+      ],
+      "cmd-o": [
+        "projects::OpenRecent",
+        {
+          "create_new_window": false,
+        },
+      ],
+    },
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-1": ["pane::ActivateItem", 0],
+      "cmd-2": ["pane::ActivateItem", 1],
+      "cmd-3": ["pane::ActivateItem", 2],
+      "cmd-4": ["pane::ActivateItem", 3],
+      "cmd-5": ["pane::ActivateItem", 4],
+      "cmd-6": ["pane::ActivateItem", 5],
+      "cmd-7": ["pane::ActivateItem", 6],
+      "cmd-8": ["pane::ActivateItem", 7],
+      "cmd-9": ["pane::ActivateItem", 8],
+    },
+  },
+  {
+    "bindings": {
+      "cmd-shift-o": "workspace::Open",
+    },
+  },
+  {
+    "unbind": {
+      "cmd-o": "workspace::Open",
+    },
+  },
+  {
+    "context": "Workspace",
+    "unbind": {
+      "alt-cmd-o": [
+        "projects::OpenRecent",
+        {
+          "create_new_window": false,
+        },
+      ],
+    },
+  },
+]

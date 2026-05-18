@@ -2,3 +2,11 @@
 
 # Antidote generated plugin bundle (machine-specific paths)
 shell/plugins.zsh
+
+# Generated/local app config artifacts
+**/.DS_Store
+**/*.bak
+**/__pycache__/
+**/*.pyc
+config/**/node_modules/
+config/**/.git/

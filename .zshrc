@@ -3,7 +3,7 @@
 # =============================================================================
 
 # Path to dotfiles
-export DOTFILES=$HOME/.dotfiles
+export DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 
 # =============================================================================
 # PATH Configuration
@@ -52,16 +52,22 @@ export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
 # Default editor (used by Ghostty +edit-config, git, etc.)
-export EDITOR="code-insiders --wait"
-export VISUAL="code-insiders --wait"
+if command -v code-insiders &> /dev/null; then
+  export EDITOR="code-insiders --wait"
+  export VISUAL="code-insiders --wait"
+elif command -v code &> /dev/null; then
+  export EDITOR="code --wait"
+  export VISUAL="code --wait"
+else
+  export EDITOR="vi"
+  export VISUAL="vi"
+fi
 
 # Java / Android
-# export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk.jdk/Contents/Home
-# export ANDROID_HOME=~/Library/Android/sdk
-# export ANDROID_SDK_ROOT=~/Library/Android/sdk
-# export ANDROID_AVD_HOME=~/.android/avd
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home"
+if /usr/libexec/java_home -v 17 &> /dev/null; then
+  export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+fi
 export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 
 # NVM
@@ -70,6 +76,9 @@ export NVM_AUTOLOAD=1
 
 # WakaTime
 export ZSH_WAKATIME_PROJECT_DETECTION=true
+
+# Claude
+export CLAUDE_CODE_NO_FLICKER=1
 
 # =============================================================================
 # Secrets (API keys, tokens, etc.)
@@ -162,10 +171,12 @@ fi
 # =============================================================================
 # Herd PHP Configuration
 # =============================================================================
-export HERD_PHP_81_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/81/"
-export HERD_PHP_82_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/82/"
-export HERD_PHP_83_INI_SCAN_DIR="$HOME/Library/Application Support/Herd/config/php/83/"
-export PATH="$HOME/Library/Application Support/Herd/bin/":$PATH
+export HERD_CONFIG_DIR="$HOME/Library/Application Support/Herd/config/php"
+export HERD_PHP_81_INI_SCAN_DIR="$HERD_CONFIG_DIR/81/"
+export HERD_PHP_82_INI_SCAN_DIR="$HERD_CONFIG_DIR/82/"
+export HERD_PHP_83_INI_SCAN_DIR="$HERD_CONFIG_DIR/83/"
+export HERD_PHP_84_INI_SCAN_DIR="$HERD_CONFIG_DIR/84/"
+export PATH="$HOME/Library/Application Support/Herd/bin/:$PATH"
 
 # =============================================================================
 # FZF - Fuzzy Finder
@@ -188,3 +199,12 @@ if command -v fzf &> /dev/null; then
     export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
   fi
 fi
+
+
+
+# Herd injected PHP 8.4 configuration.
+export HERD_PHP_84_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/84/"
+
+
+# Herd injected PHP 8.2 configuration.
+export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"

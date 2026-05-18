@@ -16,6 +16,7 @@ set -euo pipefail
 # Configuration
 # =============================================================================
 DOTFILES_DIR="$HOME/.dotfiles"
+BREWFILE_BASE="$DOTFILES_DIR/Brewfile"
 
 # =============================================================================
 # Show usage if no profile specified
@@ -75,9 +76,20 @@ command_exists() {
 symlink() {
   local src="$1"
   local dest="$2"
+  local dest_dir
+
+  dest_dir="$(dirname "$dest")"
+  mkdir -p "$dest_dir"
 
   if [[ -L "$dest" ]]; then
-    log_info "Symlink already exists: $dest"
+    if [[ "$(readlink "$dest")" == "$src" ]]; then
+      log_info "Symlink already exists: $dest"
+    else
+      log_warning "Symlink at $dest points elsewhere, replacing it"
+      rm "$dest"
+      ln -s "$src" "$dest"
+      log_success "Symlinked $src -> $dest"
+    fi
   elif [[ -e "$dest" ]]; then
     log_warning "File exists at $dest, backing up to ${dest}.backup"
     mv "$dest" "${dest}.backup"
@@ -102,10 +114,40 @@ install_homebrew() {
 
     # Add Homebrew to PATH for Apple Silicon Macs
     if [[ -f /opt/homebrew/bin/brew ]]; then
-      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+      if [[ ! -f "$HOME/.zprofile" ]] || ! grep -Fq 'eval "$(/opt/homebrew/bin/brew shellenv)"' "$HOME/.zprofile"; then
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+      fi
       eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
     log_success "Homebrew installed"
+  fi
+}
+
+prepare_brewfile() {
+  local brewfile="$1"
+
+  if mas account &> /dev/null; then
+    printf '%s\n' "$brewfile"
+    return 0
+  fi
+
+  log_warning "Skipping Mac App Store apps from $(basename "$brewfile") until you sign in to the App Store" >&2
+
+  local filtered
+  filtered="$(mktemp)"
+  grep -v '^mas "' "$brewfile" > "$filtered"
+  printf '%s\n' "$filtered"
+}
+
+install_brew_bundle_file() {
+  local brewfile="$1"
+  local prepared
+
+  prepared="$(prepare_brewfile "$brewfile")"
+  brew bundle --file "$prepared"
+
+  if [[ "$prepared" != "$brewfile" ]]; then
+    rm -f "$prepared"
   fi
 }
 
@@ -113,16 +155,16 @@ install_brew_packages() {
   log_info "Updating Homebrew..."
   brew update
 
-  log_info "Installing packages from Brewfile..."
-  brew bundle --file "$DOTFILES_DIR/Brewfile"
+  log_info "Installing shared packages..."
+  install_brew_bundle_file "$BREWFILE_BASE"
 
   # Install profile-specific packages
   if [[ "$PROFILE" == "workstation" ]] && [[ -f "$DOTFILES_DIR/Brewfile.workstation" ]]; then
     log_info "Installing workstation-specific packages..."
-    brew bundle --file "$DOTFILES_DIR/Brewfile.workstation"
+    install_brew_bundle_file "$DOTFILES_DIR/Brewfile.workstation"
   elif [[ "$PROFILE" == "media-server" ]] && [[ -f "$DOTFILES_DIR/Brewfile.media-server" ]]; then
     log_info "Installing media-server-specific packages..."
-    brew bundle --file "$DOTFILES_DIR/Brewfile.media-server"
+    install_brew_bundle_file "$DOTFILES_DIR/Brewfile.media-server"
   fi
 
   log_success "Brew packages installed"
@@ -164,8 +206,9 @@ install_antidote() {
 setup_directories() {
   log_info "Setting up directories..."
 
-  mkdir -p "$HOME/Code"
+  mkdir -p "$HOME/Developer"
   mkdir -p "$HOME/.config/ghostty"
+  mkdir -p "$HOME/.config/opencode/plugins"
   mkdir -p "$HOME/.config/ohmyposh"
 
   log_success "Directories created"
@@ -192,15 +235,11 @@ setup_symlinks() {
   # Oh My Posh prompt
   symlink "$DOTFILES_DIR/config/ohmyposh/config.toml" "$HOME/.config/ohmyposh/config.toml"
 
-  log_success "Symlinks created"
-}
+  # Opencode configuration
+  symlink "$DOTFILES_DIR/config/opencode/oh-my-opencode.json" "$HOME/.config/opencode/oh-my-opencode.json"
+  symlink "$DOTFILES_DIR/config/opencode/plugins/tmux-agent-status.ts" "$HOME/.config/opencode/plugins/tmux-agent-status.ts"
 
-install_chezmoi() {
-  if command_exists chezmoi; then
-    log_success "Chezmoi already installed"
-  else
-    log_info "Chezmoi will be installed via Homebrew"
-  fi
+  log_success "Symlinks created"
 }
 
 # =============================================================================
@@ -230,7 +269,7 @@ main() {
   if [[ ! -d "$DOTFILES_DIR" ]]; then
     log_error "Dotfiles directory not found at $DOTFILES_DIR"
     log_info "Please clone the repository first:"
-    log_info "  git clone https://github.com/yourusername/dotfiles.git $DOTFILES_DIR"
+    log_info "  git clone git@github.com:rodvilla/dotfiles.git $DOTFILES_DIR"
     exit 1
   fi
 
@@ -243,13 +282,12 @@ main() {
   install_tpm
 
   # Profile-specific installation
-  if [[ "$PROFILE" != "minimal" ]]; then
+  install_brew_packages
+
+  if [[ "$PROFILE" == "workstation" ]]; then
     install_nvm
-    install_brew_packages
   else
-    log_info "Minimal profile - skipping NVM and full Brew packages"
-    # Install just essential CLI tools for minimal profile
-    brew install git zsh tmux oh-my-posh fzf bat eza fd ripgrep zoxide
+    log_info "$PROFILE profile - skipping NVM"
   fi
 
   echo ""
@@ -264,6 +302,7 @@ main() {
     echo "  3. Set up Node.js: nvm install --lts"
     echo "  4. Restore secrets: ./bin/secrets.sh"
   fi
+  echo "  5. If App Store apps were skipped, sign in and rerun: ./bin/install.sh $PROFILE"
   echo ""
 }
 
