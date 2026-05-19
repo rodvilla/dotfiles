@@ -255,12 +255,10 @@ setup_symlinks() {
   symlink "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
   symlink "$DOTFILES_DIR/config/claude/RTK.md" "$HOME/.claude/RTK.md"
   symlink "$DOTFILES_DIR/config/claude/settings.json" "$HOME/.claude/settings.json"
-  symlink "$DOTFILES_DIR/config/claude/remote-settings.json" "$HOME/.claude/remote-settings.json"
   symlink "$DOTFILES_DIR/config/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
   symlink "$DOTFILES_DIR/config/claude/commands" "$HOME/.claude/commands"
   symlink "$DOTFILES_DIR/config/claude/hooks" "$HOME/.claude/hooks"
-  symlink "$DOTFILES_DIR/config/claude/rules" "$HOME/.claude/rules"
-  symlink "$DOTFILES_DIR/config/claude/skills" "$HOME/.claude/skills"
+  symlink "$DOTFILES_DIR/config/claude/hud" "$HOME/.claude/hud"
 
   # Zed editor configuration
   symlink "$DOTFILES_DIR/config/zed/settings.json" "$HOME/.config/zed/settings.json"

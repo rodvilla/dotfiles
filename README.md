@@ -122,7 +122,7 @@ dotfiles/
 │   ├── install.sh              # Installation script with profile support
 │   └── secrets.sh              # Restore secrets and SSH config from backup
 ├── config/
-│   ├── claude/                  # Claude Code settings, commands, hooks, rules, skills
+│   ├── claude/                  # Claude Code settings, commands, hooks, HUD
 │   ├── ghostty/config          # Ghostty terminal configuration
 │   ├── ohmyposh/config.toml    # Oh My Posh prompt theme
 │   ├── opencode/               # OpenCode settings, commands, profiles, skills, plugins
@@ -153,6 +153,8 @@ dotfiles/
 | AI Coding | Claude Code, OpenCode |
 | Package Manager | Homebrew |
 | Dotfile Manager | [Chezmoi](https://chezmoi.io/) |
+
+Claude Code skills are intentionally left local/tool-managed under `~/.claude/skills` instead of being symlinked into this repo.
 
 ## Shell Aliases
 
