@@ -110,7 +110,8 @@
     "frontend-design@claude-plugins-official": false,
     "autoresearch@autoresearch": false,
     "plannotator@plannotator": true,
-    "oh-my-claudecode@omc": true
+    "oh-my-claudecode@omc": true,
+    "agentmemory@agentmemory": true
   },
   "extraKnownMarketplaces": {
     "wakatime": {
@@ -142,6 +143,12 @@
       "source": {
         "source": "git",
         "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
+      }
+    },
+    "agentmemory": {
+      "source": {
+        "source": "github",
+        "repo": "rohitg00/agentmemory"
       }
     }
   },

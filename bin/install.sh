@@ -239,6 +239,9 @@ setup_symlinks() {
   # Oh My Posh prompt
   symlink "$DOTFILES_DIR/config/ohmyposh/config.toml" "$HOME/.config/ohmyposh/config.toml"
 
+  # Neovim configuration
+  symlink "$DOTFILES_DIR/config/nvim" "$HOME/.config/nvim"
+
   # Opencode configuration
   symlink "$DOTFILES_DIR/config/opencode/oh-my-opencode.json" "$HOME/.config/opencode/oh-my-opencode.json"
   symlink "$DOTFILES_DIR/config/opencode/oh-my-opencode-slim.json" "$HOME/.config/opencode/oh-my-opencode-slim.json"

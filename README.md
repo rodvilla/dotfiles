@@ -1,6 +1,6 @@
 # Rod's Dotfiles
 
-Personal dotfiles for macOS development environment. Configures Zsh, Ghostty terminal, Tmux, Oh My Posh prompt, Claude Code, OpenCode, Zed, and manages packages via Homebrew.
+Personal dotfiles for macOS development environment. Configures Zsh, Ghostty terminal, Tmux, Oh My Posh prompt, Neovim, Claude Code, OpenCode, Zed, and manages packages via Homebrew.
 
 ## Installation
 
@@ -124,6 +124,7 @@ dotfiles/
 ├── config/
 │   ├── claude/                  # Claude Code settings, commands, hooks, HUD
 │   ├── ghostty/config          # Ghostty terminal configuration
+│   ├── nvim/                   # Neovim LazyVim configuration
 │   ├── ohmyposh/config.toml    # Oh My Posh prompt theme
 │   ├── opencode/               # OpenCode settings, commands, profiles, skills, plugins
 │   └── zed/                    # Zed editor settings, keymap, tasks, themes
@@ -149,7 +150,7 @@ dotfiles/
 | Terminal | [Ghostty](https://ghostty.org/) |
 | Prompt | [Oh My Posh](https://ohmyposh.dev/) |
 | Multiplexer | Tmux |
-| Editor | [Zed](https://zed.dev/) |
+| Editor | Neovim (LazyVim), Zed |
 | AI Coding | Claude Code, OpenCode |
 | Package Manager | Homebrew |
 | Dotfile Manager | [Chezmoi](https://chezmoi.io/) |

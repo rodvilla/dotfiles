@@ -16,6 +16,9 @@ fi
 # User local binaries (Claude CLI, etc.)
 export PATH="$HOME/.local/bin:$PATH"
 
+# NPM global binaries
+export PATH="/Users/rodrigo/.nvm/versions/node/v22.18.0/bin:$PATH"
+
 # =============================================================================
 # Zsh Options
 # =============================================================================

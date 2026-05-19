@@ -54,6 +54,45 @@ alias cld="claude --dangerously-skip-permissions"
 alias oco="opencode"
 alias ocom="opencode models"
 
+_dev_tmux_layout() {
+  local agent_cmd="$1"
+  local editor_cmd="${2:-nvim .}"
+  local cwd="${PWD:A}"
+
+  if [[ -z "${TMUX:-}" ]]; then
+    printf 'ccs/ocs: run this inside a tmux session.\n' >&2
+    return 1
+  fi
+
+  if ! command -v tmux &> /dev/null; then
+    printf 'ccs/ocs: tmux is not available.\n' >&2
+    return 1
+  fi
+
+  local bottom_pane top_left_pane top_right_pane
+
+  bottom_pane="$(command tmux display-message -p '#{pane_id}')" || return 1
+
+  # Keep the current shell as the bottom command pane (20% height),
+  # then create the top row above it (80% height).
+  top_left_pane="$(command tmux split-window -v -b -p 80 -c "$cwd" -P -F '#{pane_id}')" || return 1
+
+  # Split the top row into a 60% left agent pane and a 40% right editor pane.
+  top_right_pane="$(command tmux split-window -h -p 40 -c "$cwd" -t "$top_left_pane" -P -F '#{pane_id}')" || return 1
+
+  command tmux send-keys -t "$top_left_pane" "$agent_cmd" C-m
+  command tmux send-keys -t "$top_right_pane" "$editor_cmd" C-m
+  command tmux select-pane -t "$bottom_pane"
+}
+
+ccs() {
+  _dev_tmux_layout "cld"
+}
+
+ocs() {
+  _dev_tmux_layout "opencode"
+}
+
 # =============================================================================
 # Modern CLI replacements (if installed)
 # =============================================================================
