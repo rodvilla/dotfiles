@@ -14,6 +14,7 @@ brew "git"
 brew "gh"
 brew "jq"
 brew "mas"
+brew "neovim"
 brew "opencode"
 brew "rtk"
 brew "tmux"
@@ -39,6 +40,8 @@ brew "bun"
 brew "cloudflared"
 brew "jandedobbeleer/oh-my-posh/oh-my-posh"
 brew "lefthook"
+brew "shellcheck"
+brew "shfmt"
 
 # =============================================================================
 # Fonts

@@ -157,6 +157,10 @@ dotfiles/
 
 Claude Code skills are intentionally left local/tool-managed under `~/.claude/skills` instead of being symlinked into this repo.
 
+### Neovim
+
+Neovim uses LazyVim. See [`config/nvim/README.md`](config/nvim/README.md) for PHP/Laravel, TypeScript/React, Markdown, and Bash setup notes.
+
 ## Shell Aliases
 
 ```bash
