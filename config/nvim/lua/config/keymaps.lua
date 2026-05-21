@@ -49,6 +49,27 @@ local commands = {
   end,
 }
 
+local function neotest()
+  local ok, test = pcall(require, "neotest")
+  if not ok then
+    vim.notify("neotest is not available", vim.log.levels.WARN)
+    return nil
+  end
+
+  return test
+end
+
+local function run_phpunit(target)
+  local test = neotest()
+  if not test then
+    return
+  end
+
+  test.output_panel.open()
+  test.output_panel.clear()
+  test.run.run(target)
+end
+
 vim.api.nvim_create_user_command("PhpPint", function()
   terminal(commands.pint_file())
 end, { desc = "Run Pint on the current PHP file" })
@@ -77,6 +98,14 @@ vim.api.nvim_create_user_command("MagoFix", function()
   terminal(commands.mago_fix())
 end, { desc = "Run Mago safe fixes and format" })
 
+vim.api.nvim_create_user_command("PhpUnitFile", function()
+  run_phpunit(vim.fn.expand("%"))
+end, { desc = "Run PHPUnit for the current file" })
+
+vim.api.nvim_create_user_command("PhpUnitTest", function()
+  run_phpunit()
+end, { desc = "Run PHPUnit for the test under the cursor" })
+
 vim.keymap.set("n", "<leader>cpl", function()
   terminal(commands.pint_file())
 end, { desc = "PHP Pint Current File" })
@@ -104,3 +133,11 @@ end, { desc = "Mago Lint" })
 vim.keymap.set("n", "<leader>cpM", function()
   terminal(commands.mago_fix())
 end, { desc = "Mago Fix" })
+
+vim.keymap.set("n", "<leader>cpT", function()
+  run_phpunit(vim.fn.expand("%"))
+end, { desc = "PHPUnit Current File" })
+
+vim.keymap.set("n", "<leader>cpt", function()
+  run_phpunit()
+end, { desc = "PHPUnit Test Under Cursor" })

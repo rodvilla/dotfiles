@@ -27,6 +27,8 @@ This config is LazyVim-based and tuned for Laravel/PHP, React/React Native TypeS
 | `<leader>cpR` | `:Rector` | Rector apply |
 | `<leader>cpm` | `:MagoLint` | Mago lint |
 | `<leader>cpM` | `:MagoFix` | Mago safe fixes + format |
+| `<leader>cpT` | `:PhpUnitFile` | PHPUnit current test file |
+| `<leader>cpt` | `:PhpUnitTest` | PHPUnit test method under cursor |
 
 Recommended per Laravel project:
 

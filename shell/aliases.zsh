@@ -45,6 +45,7 @@ alias ytw="yarn test --watch"
 if command -v code-insiders &> /dev/null; then
   alias code="code-insiders"
 fi
+alias v="nvim"
 
 # =============================================================================
 # AI
@@ -57,32 +58,16 @@ alias ocom="opencode models"
 _dev_tmux_layout() {
   local agent_cmd="$1"
   local editor_cmd="${2:-nvim .}"
-  local cwd="${PWD:A}"
+  local layout_script="${HOME}/.dotfiles/shell/dev-tmux-layout.zsh"
 
-  if [[ -z "${TMUX:-}" ]]; then
-    printf 'ccs/ocs: run this inside a tmux session.\n' >&2
-    return 1
-  fi
+  zsh "$layout_script" start "$agent_cmd" "$editor_cmd"
+}
 
-  if ! command -v tmux &> /dev/null; then
-    printf 'ccs/ocs: tmux is not available.\n' >&2
-    return 1
-  fi
+agent_layout() {
+  local editor_cmd="${1:-nvim .}"
+  local layout_script="${HOME}/.dotfiles/shell/dev-tmux-layout.zsh"
 
-  local bottom_pane top_left_pane top_right_pane
-
-  bottom_pane="$(command tmux display-message -p '#{pane_id}')" || return 1
-
-  # Keep the current shell as the bottom command pane (20% height),
-  # then create the top row above it (80% height).
-  top_left_pane="$(command tmux split-window -v -b -p 80 -c "$cwd" -P -F '#{pane_id}')" || return 1
-
-  # Split the top row into a 60% left agent pane and a 40% right editor pane.
-  top_right_pane="$(command tmux split-window -h -p 40 -c "$cwd" -t "$top_left_pane" -P -F '#{pane_id}')" || return 1
-
-  command tmux send-keys -t "$top_left_pane" "$agent_cmd" C-m
-  command tmux send-keys -t "$top_right_pane" "$editor_cmd" C-m
-  command tmux select-pane -t "$bottom_pane"
+  zsh "$layout_script" attach "" "" "$editor_cmd"
 }
 
 ccs() {
@@ -129,6 +114,7 @@ tmux_hotkeys() {
   printf '  %s f      fuzzy switch window/session\n' "$prefix"
   printf '  %s O      SessionX session manager\n' "$prefix"
   printf '  %s g      popup shell in current path\n' "$prefix"
+  printf '  %s A      wrap current agent in coding layout\n' "$prefix"
 
   printf '\nWindows\n'
   printf '  %s c      new window in ~/Developer\n' "$prefix"

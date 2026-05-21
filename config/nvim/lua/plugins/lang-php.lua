@@ -76,4 +76,18 @@ return {
       opts.linters_by_ft.php = { "php" }
     end,
   },
+
+  -- Keep PHPUnit results in neotest's bottom output panel instead of opening floating output.
+  {
+    "nvim-neotest/neotest",
+    optional = true,
+    opts = function(_, opts)
+      opts.output = vim.tbl_deep_extend("force", opts.output or {}, {
+        open_on_run = false,
+      })
+      opts.output_panel = vim.tbl_deep_extend("force", opts.output_panel or {}, {
+        open = "botright split | resize 15",
+      })
+    end,
+  },
 }
