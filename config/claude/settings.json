@@ -110,7 +110,6 @@
     "frontend-design@claude-plugins-official": false,
     "autoresearch@autoresearch": false,
     "plannotator@plannotator": true,
-    "oh-my-claudecode@omc": true,
     "agentmemory@agentmemory": true
   },
   "extraKnownMarketplaces": {

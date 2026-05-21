@@ -17,6 +17,63 @@ local function has_upward(path, start)
 end
 
 return {
+  -- Laravel-specific navigation, Artisan/Composer commands, Sail integration, and completions.
+  {
+    "adibhanna/laravel.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+    },
+    keys = {
+      { "<leader>la", "<cmd>Artisan<cr>", desc = "Laravel Artisan" },
+      { "<leader>lc", "<cmd>Composer<cr>", desc = "Composer" },
+      { "<leader>lr", "<cmd>LaravelRoute<cr>", desc = "Laravel Routes" },
+      { "<leader>lm", "<cmd>LaravelMake<cr>", desc = "Laravel Make" },
+      { "<leader>ls", "<cmd>LaravelStatus<cr>", desc = "Laravel Status" },
+    },
+    opts = {
+      notifications = true,
+      debug = false,
+      keymaps = false,
+      sail = {
+        enabled = true,
+        auto_detect = true,
+      },
+    },
+  },
+
+  -- laravel.nvim uses the PHP parser for accurate framework-aware navigation.
+  {
+    "nvim-treesitter/nvim-treesitter",
+    optional = true,
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      if not vim.tbl_contains(opts.ensure_installed, "php") then
+        table.insert(opts.ensure_installed, "php")
+      end
+    end,
+  },
+
+  {
+    "saghen/blink.cmp",
+    optional = true,
+    opts = function(_, opts)
+      opts.sources = opts.sources or {}
+      opts.sources.default = opts.sources.default or {}
+      opts.sources.providers = opts.sources.providers or {}
+
+      if not vim.tbl_contains(opts.sources.default, "laravel") then
+        table.insert(opts.sources.default, 1, "laravel")
+      end
+
+      opts.sources.providers.laravel = {
+        name = "laravel",
+        module = "laravel.blink_source",
+      }
+    end,
+  },
+
   -- LazyVim's PHP extra defaults to phpactor; use the Intelephense server you already have.
   {
     "neovim/nvim-lspconfig",

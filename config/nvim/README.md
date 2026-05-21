@@ -14,6 +14,7 @@ This config is LazyVim-based and tuned for Laravel/PHP, React/React Native TypeS
 ## PHP / Laravel behavior
 
 - LSP: Intelephense (`vim.g.lazyvim_php_lsp = "intelephense"`).
+- Laravel.nvim: framework-aware navigation/completion plus Artisan, Composer, routes, make, status, and Sail auto-detection.
 - Format on save / `<leader>cf`: Laravel Pint when the project has `vendor/bin/pint` or `pint.json`; otherwise Mago.
 - Automatic linting: lightweight `php -l` syntax checks.
 - Heavier project checks run on demand in a terminal:
@@ -29,6 +30,11 @@ This config is LazyVim-based and tuned for Laravel/PHP, React/React Native TypeS
 | `<leader>cpM` | `:MagoFix` | Mago safe fixes + format |
 | `<leader>cpT` | `:PhpUnitFile` | PHPUnit current test file |
 | `<leader>cpt` | `:PhpUnitTest` | PHPUnit test method under cursor |
+| `<leader>la` | `:Artisan` | Laravel Artisan command picker |
+| `<leader>lc` | `:Composer` | Composer command picker |
+| `<leader>lr` | `:LaravelRoute` | Laravel routes |
+| `<leader>lm` | `:LaravelMake` | Laravel make picker |
+| `<leader>ls` | `:LaravelStatus` | Laravel.nvim status |
 
 Recommended per Laravel project:
 

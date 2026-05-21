@@ -68,6 +68,12 @@ local function run_phpunit(target)
   test.output_panel.open()
   test.output_panel.clear()
   test.run.run(target)
+
+  -- The output panel only receives final Neotest results. Attach to the live
+  -- integrated runner process so PHPUnit stdout/stderr streams while it runs.
+  vim.defer_fn(function()
+    test.run.attach(target)
+  end, 100)
 end
 
 vim.api.nvim_create_user_command("PhpPint", function()
