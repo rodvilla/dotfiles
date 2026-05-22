@@ -23,6 +23,7 @@ alias brupg="brew upgrade"
 alias brcle="brew cleanup"
 alias bis="brew install"
 alias bru="brew uninstall"
+alias brls="brew list"
 
 # =============================================================================
 # Docker
@@ -32,6 +33,7 @@ alias docc="docker compose"
 alias doce="docker exec -it"
 alias docce="docker compose exec -it"
 alias docfresh="docker compose down && docker compose up -d"
+alias dcps="docker compose ps"
 
 # =============================================================================
 # Node / Yarn
@@ -42,9 +44,6 @@ alias ytw="yarn test --watch"
 # =============================================================================
 # Editor
 # =============================================================================
-if command -v code-insiders &> /dev/null; then
-  alias code="code-insiders"
-fi
 alias v="nvim"
 
 # =============================================================================

@@ -47,4 +47,26 @@ return {
       { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
     },
   },
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    opts = {
+      size = function(term)
+        if term.direction == "horizontal" then
+          return 20
+        elseif term.direction == "vertical" then
+          return 80
+        end
+      end,
+      hide_numbers = true,
+      open_mapping = [[<M-\>]],
+      direction = "horizontal",
+      close_on_exit = true,
+      float_opts = {
+        border = "rounded",
+        winblend = 0,
+      },
+    },
+  },
+  { "christoomey/vim-tmux-navigator" },
 }

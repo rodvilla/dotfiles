@@ -159,3 +159,32 @@ vim.keymap.set("n", "<leader>fY", function()
   vim.fn.setreg("+", path)
   vim.notify("Copied absolute path: " .. path)
 end, { desc = "Copy absolute file path" })
+
+vim.keymap.set("n", "<M-\\>", function()
+  require("toggleterm").toggle(0, nil, nil, "horizontal")
+end, { desc = "Toggle terminal (horizontal split at bottom)" })
+
+vim.keymap.set("n", "<M-S-\\>", function()
+  require("toggleterm").toggle(0, nil, nil, "vertical")
+end, { desc = "Toggle terminal (vertical split on right)" })
+
+vim.keymap.set("n", "<leader>tt", function()
+  require("toggleterm").toggle(0, nil, nil, "horizontal")
+end, { desc = "Toggle terminal at bottom" })
+
+vim.keymap.set("n", "<leader>tv", function()
+  require("toggleterm").toggle(0, nil, nil, "vertical")
+end, { desc = "Toggle terminal on right" })
+
+vim.keymap.set({ "n", "i", "v" }, "<M-Down>", "<Nop>", { desc = "Allow tmux to handle Alt+Down" })
+vim.keymap.set({ "n", "i", "v" }, "<M-Up>", "<Nop>", { desc = "Allow tmux to handle Alt+Up" })
+vim.keymap.set({ "n", "i", "v" }, "<M-Left>", "<Nop>", { desc = "Allow tmux to handle Alt+Left" })
+vim.keymap.set({ "n", "i", "v" }, "<M-Right>", "<Nop>", { desc = "Allow tmux to handle Alt+Right" })
+
+vim.keymap.set("n", "<leader>sh", function()
+  vim.cmd.split()
+end, { desc = "Split window horizontally" })
+
+vim.keymap.set("n", "<leader>sv", function()
+  vim.cmd.vsplit()
+end, { desc = "Split window vertically" })

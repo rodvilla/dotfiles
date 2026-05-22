@@ -7,8 +7,9 @@ working-directory = ~/Developer
 # =============================================================================
 # Font
 # =============================================================================
-font-family = Hack Nerd Font Mono
-font-size = 13
+#font-family = Hack Nerd Font Mono
+font-family = JetBrainsMono Nerd Font Propo
+font-size = 14
 font-thicken = true
 adjust-cell-height = 25%
 
@@ -82,3 +83,4 @@ keybind = alt+right=unbind
 mouse-hide-while-typing = true
 mouse-scroll-multiplier = 0.375
 macos-option-as-alt = true
+

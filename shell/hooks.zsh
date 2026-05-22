@@ -15,7 +15,7 @@ function _auto_rename_tmux_window() {
   [[ "$$" == "$_TMUX_PANE_PID" ]] || return
 
   local name
-  if [[ "$PWD" = "$HOME/Developer/"* ]]; then
+  if [[ "$PWD" = "$HOME/"* ]]; then
     name="${PWD##*/}"
   else
     name="zsh"

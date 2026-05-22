@@ -54,17 +54,9 @@ bindkey '^[[B' history-beginning-search-forward-end
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-# Default editor (used by Ghostty +edit-config, git, etc.)
-if command -v code-insiders &> /dev/null; then
-  export EDITOR="code-insiders --wait"
-  export VISUAL="code-insiders --wait"
-elif command -v code &> /dev/null; then
-  export EDITOR="code --wait"
-  export VISUAL="code --wait"
-else
-  export EDITOR="vi"
-  export VISUAL="vi"
-fi
+# Default editor (used by git, etc.)
+export EDITOR="nvim"
+export VISUAL="nvim"
 
 # Java / Android
 export ANDROID_HOME="$HOME/Library/Android/sdk"
