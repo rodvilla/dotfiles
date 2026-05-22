@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "theme": "synthwave84-transparent",
   "plugin": [
     "oh-my-opencode-slim"
   ],

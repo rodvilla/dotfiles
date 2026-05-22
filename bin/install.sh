@@ -72,7 +72,7 @@ log_error() {
 # Helper Functions
 # =============================================================================
 command_exists() {
-  command -v "$1" &> /dev/null
+  command -v "$1" &>/dev/null
 }
 
 symlink() {
@@ -117,7 +117,7 @@ install_homebrew() {
     # Add Homebrew to PATH for Apple Silicon Macs
     if [[ -f /opt/homebrew/bin/brew ]]; then
       if [[ ! -f "$HOME/.zprofile" ]] || ! grep -Fq 'eval "$(/opt/homebrew/bin/brew shellenv)"' "$HOME/.zprofile"; then
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>"$HOME/.zprofile"
       fi
       eval "$(/opt/homebrew/bin/brew shellenv)"
     fi
@@ -128,7 +128,7 @@ install_homebrew() {
 prepare_brewfile() {
   local brewfile="$1"
 
-  if mas account &> /dev/null; then
+  if mas account &>/dev/null; then
     printf '%s\n' "$brewfile"
     return 0
   fi
@@ -137,7 +137,7 @@ prepare_brewfile() {
 
   local filtered
   filtered="$(mktemp)"
-  grep -v '^mas "' "$brewfile" > "$filtered"
+  grep -v '^mas "' "$brewfile" >"$filtered"
   printf '%s\n' "$filtered"
 }
 
@@ -253,6 +253,7 @@ setup_symlinks() {
   symlink "$DOTFILES_DIR/config/opencode/plugins" "$HOME/.config/opencode/plugins"
   symlink "$DOTFILES_DIR/config/opencode/profiles" "$HOME/.config/opencode/profiles"
   symlink "$DOTFILES_DIR/config/opencode/skills" "$HOME/.config/opencode/skills"
+  symlink "$DOTFILES_DIR/config/opencode/themes" "$HOME/.config/opencode/themes"
 
   # Claude configuration (curated; local/session/auth files stay out of repo)
   symlink "$DOTFILES_DIR/config/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
@@ -285,14 +286,14 @@ main() {
 
   # Validate profile
   case "$PROFILE" in
-    workstation|media-server|minimal|links-only)
-      log_info "Using profile: $PROFILE"
-      ;;
-    *)
-      log_error "Unknown profile: $PROFILE"
-      log_info "Valid profiles: workstation, media-server, minimal, links-only"
-      exit 1
-      ;;
+  workstation | media-server | minimal | links-only)
+    log_info "Using profile: $PROFILE"
+    ;;
+  *)
+    log_error "Unknown profile: $PROFILE"
+    log_info "Valid profiles: workstation, media-server, minimal, links-only"
+    exit 1
+    ;;
   esac
 
   # Check if dotfiles directory exists

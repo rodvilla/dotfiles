@@ -102,16 +102,12 @@
   "enabledPlugins": {
     "ralph-loop@claude-plugins-official": false,
     "superpowers@claude-plugins-official": true,
-    "lisa@lisa": false,
     "typescript-lsp@claude-plugins-official": true,
     "php-lsp@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "ls-eng@lawnstarter-plugins": true,
-    "frontend-design@claude-plugins-official": false,
-    "autoresearch@autoresearch": false,
     "plannotator@plannotator": true,
-    "agentmemory@agentmemory": true,
-    "tmux-agent-sidebar@hiroppy": true
+    "agentmemory@agentmemory": true
   },
   "extraKnownMarketplaces": {
     "wakatime": {
@@ -143,12 +139,6 @@
       "source": {
         "source": "github",
         "repo": "rohitg00/agentmemory"
-      }
-    },
-    "hiroppy": {
-      "source": {
-        "source": "directory",
-        "path": "/Users/rodrigo/.tmux/plugins/tmux-agent-sidebar"
       }
     }
   },

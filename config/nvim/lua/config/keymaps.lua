@@ -181,7 +181,7 @@ vim.keymap.set({ "n", "i", "v" }, "<M-Up>", "<Nop>", { desc = "Allow tmux to han
 vim.keymap.set({ "n", "i", "v" }, "<M-Left>", "<Nop>", { desc = "Allow tmux to handle Alt+Left" })
 vim.keymap.set({ "n", "i", "v" }, "<M-Right>", "<Nop>", { desc = "Allow tmux to handle Alt+Right" })
 
-vim.keymap.set("n", "<leader>sh", function()
+vim.keymap.set("n", "<leader>sz", function()
   vim.cmd.split()
 end, { desc = "Split window horizontally" })
 
