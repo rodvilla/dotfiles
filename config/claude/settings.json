@@ -97,7 +97,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/combined-statusline.sh"
+    "command": "bash /Users/rodrigo/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "ralph-loop@claude-plugins-official": false,
@@ -136,12 +136,6 @@
       "source": {
         "source": "github",
         "repo": "backnotprop/plannotator"
-      }
-    },
-    "omc": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
       }
     },
     "agentmemory": {

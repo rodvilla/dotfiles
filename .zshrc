@@ -175,10 +175,13 @@ fi
 # Herd PHP Configuration
 # =============================================================================
 export HERD_CONFIG_DIR="$HOME/Library/Application Support/Herd/config/php"
-export HERD_PHP_81_INI_SCAN_DIR="$HERD_CONFIG_DIR/81/"
+
+# Herd injected PHP 8.2 configuration.
 export HERD_PHP_82_INI_SCAN_DIR="$HERD_CONFIG_DIR/82/"
-export HERD_PHP_83_INI_SCAN_DIR="$HERD_CONFIG_DIR/83/"
+
+# Herd injected PHP 8.4 configuration.
 export HERD_PHP_84_INI_SCAN_DIR="$HERD_CONFIG_DIR/84/"
+
 export PATH="$HOME/Library/Application Support/Herd/bin/:$PATH"
 
 # =============================================================================
@@ -203,11 +206,3 @@ if command -v fzf &> /dev/null; then
   fi
 fi
 
-
-
-# Herd injected PHP 8.4 configuration.
-export HERD_PHP_84_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/84/"
-
-
-# Herd injected PHP 8.2 configuration.
-export HERD_PHP_82_INI_SCAN_DIR="/Users/rodrigo/Library/Application Support/Herd/config/php/82/"

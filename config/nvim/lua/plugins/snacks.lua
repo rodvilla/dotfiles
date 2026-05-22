@@ -10,6 +10,12 @@ return {
           },
         },
       },
+      styles = {
+        lazygit = {
+          width = 0,
+          height = 0,
+        },
+      },
     },
   },
 }
