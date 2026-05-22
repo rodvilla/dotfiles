@@ -1,0 +1,1 @@
+/Users/rodrigo/.tmux/plugins/tmux-agent-sidebar/.opencode/plugins/tmux-agent-sidebar.js

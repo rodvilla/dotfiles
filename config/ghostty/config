@@ -22,6 +22,8 @@ selection-background = #fcfcfa
 selection-foreground = #262427
 background-opacity = 0.88
 background-blur = 25
+window-titlebar-background = #020111
+window-titlebar-foreground = #fcfcfa
 
 # =============================================================================
 # Window
