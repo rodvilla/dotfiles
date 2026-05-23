@@ -30,15 +30,15 @@ window-titlebar-foreground = #fcfcfa
 # Window
 # =============================================================================
 background-blur-radius = 25
-window-decoration = true
-window-height = 55
-window-width = 319
-window-step-resize = true
+window-decoration = false
+#window-height = 55
+#window-width = 319
+window-step-resize = false
 macos-titlebar-style = tabs
 confirm-close-surface = false
 window-padding-balance = true
 window-padding-x = 5
-#window-padding-y = 0
+window-padding-y = 8
 
 # =============================================================================
 # Cursor
