@@ -17,7 +17,68 @@ local function has_upward(path, start)
 end
 
 return {
-  -- Laravel-specific navigation, Artisan/Composer commands, Sail integration, and completions.
+  -- LSP Config
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = { "jose-elias-alvarez/typescript.nvim" },
+    init = function()
+      require("lazyvim.util").lsp.on_attach(function(_, buffer)
+        vim.keymap.set("n", "<leader>co", "TypescriptOrganizeImports", { buffer = buffer, desc = "Organize Imports" })
+        vim.keymap.set("n", "<leader>cR", "TypescriptRenameFile", { desc = "Rename File", buffer = buffer })
+      end)
+    end,
+    opts = {
+      servers = {
+        pyright = {},
+        tsserver = {},
+        intelephense = {
+          settings = {
+            intelephense = {
+              files = {
+                maxSize = 10000000,
+              },
+            },
+          },
+        },
+      },
+      setup = {
+        tsserver = function(_, opts)
+          require("typescript").setup({ server = opts })
+          return true
+        end,
+      },
+    },
+  },
+
+  -- TreeSitter
+  {
+    "nvim-treesitter/nvim-treesitter",
+    opts = {
+      ensure_installed = {
+        "bash",
+        "html",
+        "javascript",
+        "json",
+        "lua",
+        "markdown",
+        "markdown_inline",
+        "php",
+        "python",
+        "query",
+        "regex",
+        "tsx",
+        "typescript",
+        "vim",
+        "yaml",
+      },
+    },
+  },
+
+  -- LazyVim extras
+  { import = "lazyvim.plugins.extras.lang.typescript" },
+  { import = "lazyvim.plugins.extras.lang.json" },
+
+  -- Laravel
   {
     "adibhanna/laravel.nvim",
     event = "VeryLazy",
@@ -43,18 +104,7 @@ return {
     },
   },
 
-  -- laravel.nvim uses the PHP parser for accurate framework-aware navigation.
-  {
-    "nvim-treesitter/nvim-treesitter",
-    optional = true,
-    opts = function(_, opts)
-      opts.ensure_installed = opts.ensure_installed or {}
-      if not vim.tbl_contains(opts.ensure_installed, "php") then
-        table.insert(opts.ensure_installed, "php")
-      end
-    end,
-  },
-
+  -- Laravel blink.cmp integration
   {
     "saghen/blink.cmp",
     optional = true,
@@ -74,28 +124,7 @@ return {
     end,
   },
 
-  -- LazyVim's PHP extra defaults to phpactor; use the Intelephense server you already have.
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        intelephense = {
-          settings = {
-            intelephense = {
-              files = {
-                -- Laravel projects can easily exceed Intelephense's smaller defaults.
-                maxSize = 10000000,
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-
-  -- PHP formatting order:
-  -- 1. Project-local Laravel Pint when present.
-  -- 2. Mago as a fast fallback for non-Pint PHP projects.
+  -- PHP formatting
   {
     "stevearc/conform.nvim",
     optional = true,
@@ -123,8 +152,7 @@ return {
     end,
   },
 
-  -- Keep automatic PHP linting lightweight. Intelephense handles semantic diagnostics;
-  -- `php -l` catches syntax errors immediately. PHPStan/Rector/Mago run on demand via commands.
+  -- PHP linting
   {
     "mfussenegger/nvim-lint",
     optional = true,
@@ -134,7 +162,7 @@ return {
     end,
   },
 
-  -- Keep PHPUnit results in neotest's bottom output panel instead of opening floating output.
+  -- neotest
   {
     "nvim-neotest/neotest",
     optional = true,
