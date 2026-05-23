@@ -44,31 +44,42 @@
   },
   "model": "opus[1m]",
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude session-start"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude session-end"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/shell/tmux-agent-icon.sh UserPromptSubmit"
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude user-prompt-submit"
           }
         ]
       }
     ],
-    "PreToolUse": [
+    "Notification": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/shell/tmux-agent-icon.sh PreToolUse"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "rtk hook claude"
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude notification"
           }
         ]
       }
@@ -78,18 +89,78 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/shell/tmux-agent-icon.sh Stop"
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude stop"
           }
         ]
       }
     ],
-    "Notification": [
+    "StopFailure": [
       {
-        "matcher": "permission_prompt|idle_prompt",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/shell/tmux-agent-icon.sh Notification"
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude stop-failure"
+          }
+        ]
+      }
+    ],
+    "PermissionDenied": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude permission-denied"
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude cwd-changed"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude subagent-start"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude subagent-stop"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/shell/tmux-hook.sh claude activity-log"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
           }
         ]
       }

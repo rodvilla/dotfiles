@@ -1,52 +1,21 @@
 {
-  "preset": "openai",
+  "preset": "opencode-go",
+  "disabled_agents": [],
   "presets": {
-    "openai": {
+    "opencode-go": {
       "orchestrator": {
-        "model": "openai/gpt-5.5-fast",
+        "model": "opencode-go/glm-5.1",
         "skills": ["*"],
         "mcps": ["*"]
       },
       "oracle": {
-        "model": "openai/gpt-5.5-fast",
-        "variant": "high",
+        "model": "opencode-go/deepseek-v4-pro",
+        "variant": "max",
         "skills": [],
         "mcps": []
       },
-      "librarian": {
-        "model": "openai/gpt-5.3-codex",
-        "variant": "low",
-        "skills": [],
-        "mcps": ["websearch", "context7", "grep_app"]
-      },
-      "explorer": {
-        "model": "openai/gpt-5.3-codex",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      },
-      "designer": {
-        "model": "openai/gpt-5.5-fast",
-        "variant": "medium",
-        "skills": ["agent-browser"],
-        "mcps": []
-      },
-      "fixer": {
-        "model": "openai/gpt-5.3-codex",
-        "variant": "low",
-        "skills": [],
-        "mcps": []
-      }
-    },
-    "opencode": {
-      "orchestrator": {
-        "model": "opencode-go/kimi-k2.5",
-        "variant": "high",
-        "skills": ["*"],
-        "mcps": ["*"]
-      },
-      "oracle": {
-        "model": "opencode-go/glm-5",
+      "council": {
+        "model": "opencode-go/deepseek-v4-pro",
         "variant": "high",
         "skills": [],
         "mcps": []
@@ -64,14 +33,19 @@
         "mcps": []
       },
       "designer": {
-        "model": "opencode-go/mimo-v2-omni",
+        "model": "opencode-go/kimi-k2.6",
         "variant": "medium",
         "skills": ["agent-browser"],
         "mcps": []
       },
       "fixer": {
-        "model": "opencode-go/mimo-v2-pro",
-        "variant": "low",
+        "model": "opencode-go/deepseek-v4-flash",
+        "variant": "high",
+        "skills": [],
+        "mcps": []
+      },
+      "observer": {
+        "model": "opencode-go/kimi-k2.6",
         "skills": [],
         "mcps": []
       }

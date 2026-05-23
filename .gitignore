@@ -11,5 +11,4 @@ shell/plugins.zsh
 config/**/node_modules/
 config/**/.git/
 
-# Plugin-generated engineering standards (ls-eng)
-.claude/rules/ls-standards/
+tmux-window-sidebar/target
