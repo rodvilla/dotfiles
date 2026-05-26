@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Paragraph},
 };
 
 use crate::state::{AppState, Mode, WindowCard};
@@ -19,6 +19,7 @@ const COLOR_WAITING: Color = Color::Rgb(224, 175, 104); // #e0af68
 const COLOR_IDLE: Color = Color::Rgb(122, 162, 247);    // #7aa2f7
 const COLOR_ERROR: Color = Color::Rgb(247, 118, 142);   // #f7768e
 const COLOR_FOCUS_BG: Color = Color::Rgb(15, 14, 30);   // subtle focus tint (~5% lighter than base)
+const COLOR_SELECT_BG: Color = Color::Rgb(30, 28, 56);   // selection highlight for cursor
 
 // Powerline rounded pill characters
 const PILL_LEFT: &str = "\u{e0b6}";   //  (right semicircle)
@@ -64,14 +65,12 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
     // Top padding so the first card isn't flush against the top
     const TOP_PADDING: u16 = 1;
 
-    // Render focus background and optional borders when sidebar is focused
+    // When sidebar is focused, fill the background with the focus tint (no border)
     let card_area = if state.sidebar_focused {
-        let block = Block::default()
-            .borders(Borders::LEFT | Borders::RIGHT)
-            .border_style(Style::default().fg(COLOR_DIM))
+        let bg_block = Block::default()
             .style(Style::default().bg(COLOR_FOCUS_BG));
-        let inner = block.inner(area);
-        frame.render_widget(block, area);
+        let inner = bg_block.inner(area);
+        frame.render_widget(bg_block, area);
         Rect::new(inner.x, inner.y + TOP_PADDING, inner.width, inner.height.saturating_sub(TOP_PADDING))
     } else {
         Rect::new(area.x, area.y + TOP_PADDING, area.width, area.height.saturating_sub(TOP_PADDING))
@@ -79,15 +78,20 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
 
     // Each card is 4 content rows + 1 gap row between cards
     let gap: u16 = 1;
-    let scroll_offset = state.scroll_offset;
 
     // Build all card lines into a single paragraph and use ratatui's scroll
     let mut all_lines: Vec<Line> = Vec::new();
-    let mut card_is_active = Vec::new();
 
     for (i, card) in state.cards.iter().enumerate() {
         let is_active = card.window_active;
-        card_is_active.push((i, is_active));
+        let is_selected = state.sidebar_focused && i == state.selected_index;
+
+        // Determine styles based on active + selected state
+        let card_bg = if is_selected {
+            COLOR_SELECT_BG
+        } else {
+            Color::Reset
+        };
 
         // Row 1: folder pill (active) or folder text (inactive)
         if is_active {
@@ -99,7 +103,7 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
             all_lines.push(Line::from(vec![
                 Span::styled(
                     format!(" {PILL_LEFT}"),
-                    Style::default().fg(icon_color),
+                    Style::default().fg(icon_color).bg(card_bg),
                 ),
                 Span::styled(
                     format!("{} {}", icons::ICON_FOLDER, card.folder),
@@ -107,21 +111,28 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
                 ),
                 Span::styled(
                     PILL_RIGHT.to_string(),
-                    Style::default().fg(icon_color),
+                    Style::default().fg(icon_color).bg(card_bg),
                 ),
             ]));
         } else {
+            let folder_style = if is_selected {
+                Style::default().fg(COLOR_TEXT).bg(card_bg)
+            } else {
+                Style::default().fg(COLOR_DIM)
+            };
             all_lines.push(Line::from(vec![
                 Span::styled(
                     format!(" {} {}", icons::ICON_FOLDER, card.folder),
-                    Style::default().fg(COLOR_DIM),
+                    folder_style,
                 ),
             ]));
         }
 
         // Row 2: session icon (or zoom icon) + window_name
         let text_style = if is_active {
-            Style::default().fg(COLOR_TEXT)
+            Style::default().fg(COLOR_TEXT).bg(card_bg)
+        } else if is_selected {
+            Style::default().fg(COLOR_TEXT).bg(card_bg)
         } else {
             Style::default().fg(COLOR_DIM)
         };
@@ -153,7 +164,7 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
             all_lines.push(Line::from(vec![
                 Span::styled(
                     format!(" {s_icon} "),
-                    Style::default().fg(s_color),
+                    Style::default().fg(s_color).bg(card_bg),
                 ),
                 Span::styled(
                     format!("{agent_label}"),
@@ -169,6 +180,17 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
             all_lines.push(Line::from(""));
         }
     }
+
+    // Auto-scroll to keep the selected card visible
+    let card_height: u16 = 4;
+    let row_stride = card_height + gap;
+    let visible_height = card_area.height;
+    let selected_row = state.selected_index as u16 * row_stride;
+    let scroll_offset = if selected_row >= visible_height {
+        (selected_row - visible_height + row_stride).min(selected_row)
+    } else {
+        0
+    };
 
     let paragraph = Paragraph::new(all_lines)
         .scroll((scroll_offset, 0));

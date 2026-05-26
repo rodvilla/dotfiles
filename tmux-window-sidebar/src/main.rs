@@ -1,4 +1,3 @@
-mod app;
 mod cli;
 mod hook;
 mod icons;
@@ -117,6 +116,27 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
         ..AppState::default()
     };
 
+    // Helper: sync state from tmux and update selected_index
+    let sync_state = |state: &mut AppState| {
+        state.cards = tmux::query_windows();
+        state.active_session = tmux::active_session().unwrap_or_default();
+        state.active_window_id = tmux::active_window_id().unwrap_or_default();
+        if let Ok(pane_id) = std::env::var("TMUX_PANE") {
+            state.sidebar_focused = tmux::is_pane_active(&pane_id);
+        }
+        // Keep selected_index pointing at the active window if it hasn't been set yet
+        // or if the previously selected card is gone
+        if state.selected_index >= state.cards.len() {
+            state.selected_index = state.cards.iter().position(|c| c.window_active).unwrap_or(0);
+        }
+        state.needs_redraw = true;
+    };
+
+    // Initial data load
+    sync_state(&mut state);
+    // Set selected_index to the active window on startup
+    state.selected_index = state.cards.iter().position(|c| c.window_active).unwrap_or(0);
+
     // Event loop
     let mut last_poll = std::time::Instant::now();
 
@@ -124,26 +144,13 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
         // Poll tmux for window data every second
         let now = std::time::Instant::now();
         if now.duration_since(last_poll) >= Duration::from_secs(1) {
-            state.cards = tmux::query_windows();
-            state.active_session = tmux::active_session().unwrap_or_default();
-            state.active_window_id = tmux::active_window_id().unwrap_or_default();
-            // Check if sidebar pane is focused
-            if let Ok(pane_id) = std::env::var("TMUX_PANE") {
-                state.sidebar_focused = tmux::is_pane_active(&pane_id);
-            }
-            state.needs_redraw = true;
+            sync_state(&mut state);
             last_poll = now;
         }
 
         // Check SIGUSR1 flag
         if redraw_flag.swap(false, Ordering::Relaxed) {
-            state.cards = tmux::query_windows();
-            state.active_session = tmux::active_session().unwrap_or_default();
-            state.active_window_id = tmux::active_window_id().unwrap_or_default();
-            if let Ok(pane_id) = std::env::var("TMUX_PANE") {
-                state.sidebar_focused = tmux::is_pane_active(&pane_id);
-            }
-            state.needs_redraw = true;
+            sync_state(&mut state);
         }
 
         // Render if needed
@@ -169,30 +176,28 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
                         focus_content_from_tui();
                     }
                     KeyCode::Char('j') | KeyCode::Down => {
-                        state.scroll_offset = state.scroll_offset.saturating_add(1);
-                        state.needs_redraw = true;
-                        persist_scroll_offset(&state.scroll_offset);
+                        if !state.cards.is_empty() {
+                            state.selected_index = (state.selected_index + 1).min(state.cards.len() - 1);
+                            state.needs_redraw = true;
+                        }
                     }
                     KeyCode::Char('k') | KeyCode::Up => {
-                        state.scroll_offset = state.scroll_offset.saturating_sub(1);
+                        state.selected_index = state.selected_index.saturating_sub(1);
                         state.needs_redraw = true;
-                        persist_scroll_offset(&state.scroll_offset);
                     }
                     KeyCode::Char('G') | KeyCode::End => {
-                        let visible = terminal.size().map(|s| s.height).unwrap_or(50);
-                        let max = app::max_scroll(&state, visible);
-                        state.scroll_offset = max;
-                        state.needs_redraw = true;
-                        persist_scroll_offset(&state.scroll_offset);
+                        if !state.cards.is_empty() {
+                            state.selected_index = state.cards.len() - 1;
+                            state.needs_redraw = true;
+                        }
                     }
                     KeyCode::Char('g') | KeyCode::Home => {
-                        state.scroll_offset = 0;
+                        state.selected_index = 0;
                         state.needs_redraw = true;
-                        persist_scroll_offset(&state.scroll_offset);
                     }
                     KeyCode::Enter => {
-                        // Switch to the active window
-                        if let Some(card) = state.cards.iter().find(|c| c.window_active) {
+                        // Switch to the selected window
+                        if let Some(card) = state.cards.get(state.selected_index) {
                             let window_id = card.window_id.clone();
                             let _ = tmux::switch_to_window(&window_id);
                         }
@@ -224,13 +229,6 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Persist the scroll offset to a tmux pane option so the click handler can read it.
-fn persist_scroll_offset(offset: &u16) {
-    if let Ok(pane_id) = std::env::var("TMUX_PANE") {
-        let _ = tmux::set_pane_option(&pane_id, "@scroll_offset", &offset.to_string());
-    }
-}
-
 /// Handle mouse clicks on sidebar cards via tmux mouse binding.
 /// Receives a pane ID and y-coordinate, determines which card was clicked,
 /// and switches to that window.
@@ -245,18 +243,13 @@ fn handle_click(pane_id: &str, y: u16) -> Result<(), Box<dyn std::error::Error>>
         return Ok(());
     }
 
-    // Read scroll offset from pane option (set by the TUI)
-    let scroll_offset: u16 = tmux::get_pane_option(pane_id, "@scroll_offset")
-        .parse()
-        .unwrap_or(0);
-
-    // Calculate which card was clicked
+    // Calculate which card was clicked (no scroll offset — auto-scroll keeps selected visible)
     let card_height: u16 = 4;
     let gap: u16 = 1;
     let row_stride = card_height + gap;
 
-    // Adjust y for scroll offset
-    let adjusted_y = y.saturating_add(scroll_offset);
+    // Adjust for top padding (1 row)
+    let adjusted_y = y.saturating_sub(1);
 
     // Calculate card index
     let card_index = adjusted_y / row_stride;
@@ -436,15 +429,8 @@ fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
 /// Toggle sidebar in all windows.
 /// If any window has a sidebar pane, kill ALL sidebar panes.
 /// If no window has a sidebar, create one in EVERY window.
-/// Restores focus to the original pane after creating sidebars.
+/// After creating sidebars, focuses the sidebar pane so the user can navigate immediately.
 fn toggle_sidebar(_all: bool) -> Result<(), Box<dyn std::error::Error>> {
-    // Save the currently active pane so we can restore focus later
-    let active_pane = std::process::Command::new("tmux")
-        .args(["display-message", "-p", "#{pane_id}"])
-        .output()
-        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-        .unwrap_or_default();
-
     // Find ALL sidebar panes across all windows
     let output = std::process::Command::new("tmux")
         .args(["list-panes", "-a", "-F", "#{pane_id}:#{pane_current_command}"])
@@ -545,11 +531,26 @@ fn toggle_sidebar(_all: bool) -> Result<(), Box<dyn std::error::Error>> {
             .status();
     }
 
-    // Restore focus to the original pane
-    if !active_pane.is_empty() {
-        let _ = std::process::Command::new("tmux")
-            .args(["select-pane", "-t", &active_pane])
-            .status();
+    // Focus the sidebar pane in the current window so the user can navigate immediately
+    let panes_output = std::process::Command::new("tmux")
+        .args(["list-panes", "-F", "#{pane_id}:#{pane_current_command}"])
+        .output();
+    if let Ok(output) = panes_output {
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        for line in output_str.lines() {
+            let parts: Vec<&str> = line.splitn(2, ':').collect();
+            if parts.len() < 2 {
+                continue;
+            }
+            let pane_id = parts[0];
+            let cmd = parts[1];
+            if cmd.starts_with("tmux-window-sid") {
+                let _ = std::process::Command::new("tmux")
+                    .args(["select-pane", "-t", pane_id])
+                    .status();
+                break;
+            }
+        }
     }
 
     Ok(())
