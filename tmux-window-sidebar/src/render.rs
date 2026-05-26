@@ -61,17 +61,20 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
         return;
     }
 
+    // Top padding so the first card isn't flush against the top
+    const TOP_PADDING: u16 = 1;
+
     // Render focus background and optional borders when sidebar is focused
     let card_area = if state.sidebar_focused {
         let block = Block::default()
-            .borders(Borders::ALL)
+            .borders(Borders::LEFT | Borders::RIGHT)
             .border_style(Style::default().fg(COLOR_DIM))
             .style(Style::default().bg(COLOR_FOCUS_BG));
         let inner = block.inner(area);
         frame.render_widget(block, area);
-        inner
+        Rect::new(inner.x, inner.y + TOP_PADDING, inner.width, inner.height.saturating_sub(TOP_PADDING))
     } else {
-        area
+        Rect::new(area.x, area.y + TOP_PADDING, area.width, area.height.saturating_sub(TOP_PADDING))
     };
 
     // Each card is 4 content rows + 1 gap row between cards
@@ -99,7 +102,7 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
                     Style::default().fg(icon_color),
                 ),
                 Span::styled(
-                    format!(" {} {} ", icons::ICON_FOLDER, card.folder),
+                    format!("{} {}", icons::ICON_FOLDER, card.folder),
                     Style::default().fg(COLOR_BG).bg(icon_color).add_modifier(Modifier::BOLD),
                 ),
                 Span::styled(
