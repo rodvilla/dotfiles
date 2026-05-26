@@ -57,12 +57,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             run_popup_tui()?;
             Ok(())
         }
+        Commands::Click { pane_id, y } => {
+            handle_click(&pane_id, y)?;
+            Ok(())
+        }
     }
 }
 
 fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Set up terminal
-    crossterm::execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen)?;
+    crossterm::execute!(
+        io::stdout(),
+        crossterm::terminal::EnterAlternateScreen,
+        crossterm::cursor::Hide
+    )?;
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend)?;
@@ -136,20 +144,31 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
                     KeyCode::Char('j') | KeyCode::Down => {
                         state.scroll_offset = state.scroll_offset.saturating_add(1);
                         state.needs_redraw = true;
+                        persist_scroll_offset(&state.scroll_offset);
                     }
                     KeyCode::Char('k') | KeyCode::Up => {
                         state.scroll_offset = state.scroll_offset.saturating_sub(1);
                         state.needs_redraw = true;
+                        persist_scroll_offset(&state.scroll_offset);
                     }
                     KeyCode::Char('G') | KeyCode::End => {
                         let visible = terminal.size().map(|s| s.height).unwrap_or(50);
                         let max = app::max_scroll(&state, visible);
                         state.scroll_offset = max;
                         state.needs_redraw = true;
+                        persist_scroll_offset(&state.scroll_offset);
                     }
                     KeyCode::Char('g') | KeyCode::Home => {
                         state.scroll_offset = 0;
                         state.needs_redraw = true;
+                        persist_scroll_offset(&state.scroll_offset);
+                    }
+                    KeyCode::Enter => {
+                        // Switch to the active window
+                        if let Some(card) = state.cards.iter().find(|c| c.window_active) {
+                            let window_id = card.window_id.clone();
+                            let _ = tmux::switch_to_window(&window_id);
+                        }
                     }
                     _ => {}
                 },
@@ -166,12 +185,68 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Restore terminal
-    crossterm::execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen)?;
+    crossterm::execute!(
+        io::stdout(),
+        crossterm::cursor::Show,
+        crossterm::terminal::LeaveAlternateScreen
+    )?;
 
     // Restore tmux status bar
     let _ = std::process::Command::new("tmux")
         .args(["set-option", "-g", "status", "on"])
         .status();
+
+    Ok(())
+}
+
+/// Persist the scroll offset to a tmux pane option so the click handler can read it.
+fn persist_scroll_offset(offset: &u16) {
+    if let Ok(pane_id) = std::env::var("TMUX_PANE") {
+        let _ = tmux::set_pane_option(&pane_id, "@scroll_offset", &offset.to_string());
+    }
+}
+
+/// Handle mouse clicks on sidebar cards via tmux mouse binding.
+/// Receives a pane ID and y-coordinate, determines which card was clicked,
+/// and switches to that window.
+fn handle_click(pane_id: &str, y: u16) -> Result<(), Box<dyn std::error::Error>> {
+    // Verify this pane is actually a sidebar
+    let cmd = tmux::tmux_output(&["display-message", "-t", pane_id, "-p", "#{pane_current_command}"])?;
+    if !cmd.starts_with("tmux-window-sid") {
+        // Not a sidebar pane — select it instead (preserve default click behavior)
+        let _ = std::process::Command::new("tmux")
+            .args(["select-pane", "-t", pane_id])
+            .status();
+        return Ok(());
+    }
+
+    // Read scroll offset from pane option (set by the TUI)
+    let scroll_offset: u16 = tmux::get_pane_option(pane_id, "@scroll_offset")
+        .parse()
+        .unwrap_or(0);
+
+    // Calculate which card was clicked
+    let card_height: u16 = 4;
+    let gap: u16 = 1;
+    let row_stride = card_height + gap;
+
+    // Adjust y for scroll offset
+    let adjusted_y = y.saturating_add(scroll_offset);
+
+    // Calculate card index
+    let card_index = adjusted_y / row_stride;
+    let card_local_y = adjusted_y % row_stride;
+
+    // Only count clicks within the card area (not in the gap)
+    if card_local_y >= card_height {
+        return Ok(());
+    }
+
+    // Get the window cards and switch to the clicked one
+    let cards = tmux::query_windows();
+    if let Some(card) = cards.get(card_index as usize) {
+        let _ = tmux::switch_to_window(&card.window_id);
+    }
 
     Ok(())
 }
@@ -208,7 +283,11 @@ fn launch_popup() -> Result<(), Box<dyn std::error::Error>> {
 /// Shows horizontal cards, navigate with arrow keys, select with Enter, dismiss with ESC.
 fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
     // Set up terminal
-    crossterm::execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen)?;
+    crossterm::execute!(
+        io::stdout(),
+        crossterm::terminal::EnterAlternateScreen,
+        crossterm::cursor::Hide
+    )?;
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend)?;
@@ -323,7 +402,11 @@ fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Restore terminal
-    crossterm::execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen)?;
+    crossterm::execute!(
+        io::stdout(),
+        crossterm::cursor::Show,
+        crossterm::terminal::LeaveAlternateScreen
+    )?;
 
     Ok(())
 }

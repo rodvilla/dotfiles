@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Paragraph},
 };
 
 use crate::state::{AppState, Mode, WindowCard};
@@ -12,7 +12,6 @@ use crate::icons;
 // --- Color constants (matching Ghostty theme) ---
 
 const COLOR_BG: Color = Color::Rgb(2, 1, 17);       // #020111
-const COLOR_ACCENT: Color = Color::Rgb(156, 223, 197); // #9CDFC5
 const COLOR_TEXT: Color = Color::Rgb(255, 255, 255);   // #ffffff
 const COLOR_DIM: Color = Color::Rgb(108, 112, 134);    // #6c7086
 const COLOR_RUNNING: Color = Color::Rgb(158, 206, 106); // #9ece6a
@@ -20,18 +19,13 @@ const COLOR_WAITING: Color = Color::Rgb(224, 175, 104); // #e0af68
 const COLOR_IDLE: Color = Color::Rgb(122, 162, 247);    // #7aa2f7
 const COLOR_ERROR: Color = Color::Rgb(247, 118, 142);   // #f7768e
 
-// Agent type colors (256-color)
-const COLOR_CLAUDE: Color = Color::Indexed(174);  // dusty rose
-const COLOR_CODEX: Color = Color::Indexed(141);   // purple
-const COLOR_OPENCODE: Color = Color::Indexed(117); // cyan
-
 // Powerline rounded pill characters
 const PILL_LEFT: &str = "\u{e0b6}";   //  (right semicircle)
 const PILL_RIGHT: &str = "\u{e0b4}";  //  (left semicircle)
 
 // Card dimensions for popup mode
 const CARD_WIDTH: u16 = 28;
-const CARD_HEIGHT: u16 = 6;
+const CARD_HEIGHT: u16 = 4;
 const CARD_GAP: u16 = 2;
 
 fn status_color(status: &crate::state::PaneStatus) -> Color {
@@ -42,15 +36,6 @@ fn status_color(status: &crate::state::PaneStatus) -> Color {
         crate::state::PaneStatus::Idle => COLOR_IDLE,
         crate::state::PaneStatus::Error => COLOR_ERROR,
         crate::state::PaneStatus::Unknown => COLOR_DIM,
-    }
-}
-
-fn agent_color(agent_type: &crate::state::AgentType) -> Color {
-    match agent_type {
-        crate::state::AgentType::Claude => COLOR_CLAUDE,
-        crate::state::AgentType::Codex => COLOR_CODEX,
-        crate::state::AgentType::OpenCode => COLOR_OPENCODE,
-        crate::state::AgentType::Unknown => COLOR_DIM,
     }
 }
 
@@ -71,8 +56,8 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
         return;
     }
 
-    // Calculate card height: 4 content rows + 2 border rows = 6
-    let card_height: u16 = 6;
+    // Card height: 4 content rows (no borders)
+    let card_height: u16 = 4;
     let gap: u16 = 1;
     let scroll_offset = state.scroll_offset;
     let mut y: u16 = 0;
@@ -163,16 +148,6 @@ fn render_popup(frame: &mut Frame, area: Rect, state: &AppState) {
 }
 
 fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool) {
-    // Selected card gets accent border, active (but not selected) gets subtle highlight,
-    // inactive cards get invisible borders (matching background)
-    let border_color = if selected {
-        COLOR_ACCENT
-    } else if card.window_active {
-        COLOR_ACCENT
-    } else {
-        COLOR_BG
-    };
-
     let text_style = if selected || card.window_active {
         Style::default().fg(COLOR_TEXT).bg(COLOR_BG)
     } else {
@@ -259,8 +234,6 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
     };
 
     let block = Block::default()
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(border_color).bg(COLOR_BG))
         .style(Style::default().bg(COLOR_BG));
 
     let paragraph = Paragraph::new(vec![row1, row2, row3, row4])

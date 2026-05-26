@@ -108,7 +108,9 @@ pub fn handle_hook(agent: &str, event: &str) -> Result<(), String> {
                 update_window_status(&pane_id, Some("#e0af68"));
 
                 // Play ask sound only when window is not focused
-                crate::sound::play_ask_sound();
+                crate::sound::play_ask_sound("notification");
+            } else {
+                crate::sound::log_sound_event("suppressed", "notification: window active, ask sound skipped");
             }
         }
 
@@ -133,8 +135,9 @@ pub fn handle_hook(agent: &str, event: &str) -> Result<(), String> {
                 update_window_status(&pane_id, Some("#f7768e"));
 
                 // Play ask sound for errors that need attention
-                crate::sound::play_ask_sound();
+                crate::sound::play_ask_sound("stop_failure");
             } else {
+                crate::sound::log_sound_event("suppressed", "stop_failure: window active, ask sound skipped");
                 update_window_status(&pane_id, None);
             }
         }

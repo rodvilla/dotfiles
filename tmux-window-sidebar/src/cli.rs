@@ -41,4 +41,11 @@ pub enum Commands {
     Popup,
     /// Run the popup TUI (internal — launched inside tmux popup)
     PopupRun,
+    /// Handle a mouse click on a sidebar card (called by tmux mouse binding)
+    Click {
+        /// Pane ID where the click occurred
+        pane_id: String,
+        /// Y coordinate of the click (pane-relative, 0-based)
+        y: u16,
+    },
 }
