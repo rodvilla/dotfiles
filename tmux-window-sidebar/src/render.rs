@@ -74,44 +74,103 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
         area
     };
 
-    // Card height: 4 content rows (no borders)
-    let card_height: u16 = 4;
+    // Each card is 4 content rows + 1 gap row between cards
     let gap: u16 = 1;
     let scroll_offset = state.scroll_offset;
-    let mut y: u16 = 0;
-    let mut visible_y: u16 = 0;
 
-    for card in &state.cards {
-        let card_top = visible_y;
-        let card_bottom = card_top + card_height;
+    // Build all card lines into a single paragraph and use ratatui's scroll
+    let mut all_lines: Vec<Line> = Vec::new();
+    let mut card_is_active = Vec::new();
 
-        if card_bottom <= scroll_offset {
-            visible_y += card_height + gap;
-            continue;
+    for (i, card) in state.cards.iter().enumerate() {
+        let is_active = card.window_active;
+        card_is_active.push((i, is_active));
+
+        // Row 1: folder pill (active) or folder text (inactive)
+        if is_active {
+            let icon_color = if let Some(ref agent) = card.agent {
+                status_color(&agent.status)
+            } else {
+                COLOR_DIM
+            };
+            all_lines.push(Line::from(vec![
+                Span::styled(
+                    format!(" {PILL_LEFT}"),
+                    Style::default().fg(icon_color),
+                ),
+                Span::styled(
+                    format!(" {} {} ", icons::ICON_FOLDER, card.folder),
+                    Style::default().fg(COLOR_BG).bg(icon_color).add_modifier(Modifier::BOLD),
+                ),
+                Span::styled(
+                    PILL_RIGHT.to_string(),
+                    Style::default().fg(icon_color),
+                ),
+            ]));
+        } else {
+            all_lines.push(Line::from(vec![
+                Span::styled(
+                    format!(" {} {}", icons::ICON_FOLDER, card.folder),
+                    Style::default().fg(COLOR_DIM),
+                ),
+            ]));
         }
-        if card_top >= scroll_offset + card_area.height {
-            break;
-        }
 
-        let render_y = y;
-        let render_height = card_area.height.saturating_sub(render_y).min(card_height);
-
-        if render_height == 0 {
-            break;
-        }
-
-        let card_render_area = Rect {
-            x: card_area.x,
-            y: card_area.y + render_y,
-            width: card_area.width,
-            height: render_height,
+        // Row 2: session icon (or zoom icon) + window_name
+        let text_style = if is_active {
+            Style::default().fg(COLOR_TEXT)
+        } else {
+            Style::default().fg(COLOR_DIM)
         };
+        let row2_icon = if card.zoomed { icons::ICON_ZOOMED } else { icons::ICON_SESSION };
+        all_lines.push(Line::from(vec![
+            Span::styled(
+                format!(" {row2_icon} {}", card.window_name),
+                text_style,
+            ),
+        ]));
 
-        render_card(frame, card_render_area, card, card.window_active);
+        // Row 3: git branch (or empty)
+        if let Some(ref branch) = card.git_branch {
+            all_lines.push(Line::from(vec![
+                Span::styled(
+                    format!(" {} {}", icons::ICON_GIT_BRANCH, branch),
+                    text_style,
+                ),
+            ]));
+        } else {
+            all_lines.push(Line::from(""));
+        }
 
-        y += card_height + gap;
-        visible_y += card_height + gap;
+        // Row 4: status icon + agent type badge
+        if let Some(ref agent) = card.agent {
+            let s_icon = icons::status_icon(&agent.status);
+            let s_color = status_color(&agent.status);
+            let agent_label = agent.agent_type.to_string();
+            all_lines.push(Line::from(vec![
+                Span::styled(
+                    format!(" {s_icon} "),
+                    Style::default().fg(s_color),
+                ),
+                Span::styled(
+                    format!("{agent_label}"),
+                    text_style,
+                ),
+            ]));
+        } else {
+            all_lines.push(Line::from(""));
+        }
+
+        // Gap between cards (except after the last one)
+        if i < state.cards.len() - 1 {
+            all_lines.push(Line::from(""));
+        }
     }
+
+    let paragraph = Paragraph::new(all_lines)
+        .scroll((scroll_offset, 0));
+
+    frame.render_widget(paragraph, card_area);
 }
 
 /// Render the popup (horizontal card layout, like macOS Cmd+Tab)

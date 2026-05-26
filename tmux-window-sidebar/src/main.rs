@@ -9,7 +9,7 @@ mod state;
 mod tmux;
 
 use clap::Parser;
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use ratatui::backend::CrosstermBackend;
 use ratatui::Terminal;
 use std::io;
@@ -160,9 +160,13 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
         // Handle input events (non-blocking)
         if event::poll(Duration::from_millis(100))? {
             match event::read()? {
-                Event::Key(key) => match key.code {
-                    KeyCode::Char('q') | KeyCode::Esc => {
+                Event::Key(key) if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Char('q') => {
                         state.should_quit = true;
+                    }
+                    KeyCode::Esc | KeyCode::Tab => {
+                        // Move focus back to the content pane (non-sidebar pane)
+                        focus_content_from_tui();
                     }
                     KeyCode::Char('j') | KeyCode::Down => {
                         state.scroll_offset = state.scroll_offset.saturating_add(1);
@@ -195,6 +199,9 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
                     }
                     _ => {}
                 },
+                Event::Key(_) => {
+                    // Ignore Release and Repeat events (crossterm 0.28 sends these)
+                }
                 Event::Resize(_, _) => {
                     state.needs_redraw = true;
                 }
@@ -556,6 +563,38 @@ fn parse_width_pct(spec: &str) -> u16 {
         .trim_end_matches('%')
         .trim_end_matches("cols");
     cleaned.parse().unwrap_or(25)
+}
+
+/// Focus the content pane (non-sidebar pane) from within the TUI.
+/// Finds the first non-sidebar pane in the current window and selects it,
+/// so keyboard focus moves back to the content area while the sidebar stays open.
+fn focus_content_from_tui() {
+    let output = std::process::Command::new("tmux")
+        .args(["list-panes", "-F", "#{pane_id}:#{pane_current_command}"])
+        .output();
+
+    if let Ok(output) = output {
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        for line in output_str.lines() {
+            let parts: Vec<&str> = line.splitn(2, ':').collect();
+            if parts.len() < 2 {
+                continue;
+            }
+            let pane_id = parts[0];
+            let cmd = parts[1];
+
+            // Skip sidebar panes (truncated to 15 chars: tmux-window-sid)
+            if cmd.starts_with("tmux-window-sid") {
+                continue;
+            }
+
+            // Focus this content pane
+            let _ = std::process::Command::new("tmux")
+                .args(["select-pane", "-t", pane_id])
+                .status();
+            return;
+        }
+    }
 }
 
 /// Focus the content pane (non-sidebar pane) in the current window.
