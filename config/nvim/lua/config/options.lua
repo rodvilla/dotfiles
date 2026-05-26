@@ -11,3 +11,6 @@ vim.g.lazyvim_prettier_needs_config = true
 
 -- Disable import order check since extras are managed via lazyvim.json
 vim.g.lazyvim_check_order = false
+
+-- Use Telescope as the default picker instead of Snacks
+vim.g.lazyvim_picker = "telescope"
