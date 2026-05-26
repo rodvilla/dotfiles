@@ -18,7 +18,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use cli::Commands;
-use state::AppState;
+use state::{AppState, Mode};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = cli::Cli::parse();
@@ -43,6 +43,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Commands::SyncStatus => {
             sync_status()?;
+            Ok(())
+        }
+        Commands::ClearStatus { pane_id } => {
+            clear_status(&pane_id)?;
+            Ok(())
+        }
+        Commands::Popup => {
+            launch_popup()?;
+            Ok(())
+        }
+        Commands::PopupRun => {
+            run_popup_tui()?;
             Ok(())
         }
     }
@@ -75,7 +87,11 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
         .status();
 
     // Initial state
-    let mut state = AppState::new();
+    let mut state = AppState {
+        mode: Mode::Sidebar,
+        sidebar_width: sidebar_width_pct,
+        ..AppState::default()
+    };
 
     // Event loop
     let mut last_poll = std::time::Instant::now();
@@ -156,6 +172,158 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
     let _ = std::process::Command::new("tmux")
         .args(["set-option", "-g", "status", "on"])
         .status();
+
+    Ok(())
+}
+
+/// Launch the floating window switcher popup.
+/// Queries windows, calculates popup dimensions, and creates a tmux popup.
+fn launch_popup() -> Result<(), Box<dyn std::error::Error>> {
+    let cards = tmux::query_windows();
+    let n = cards.len().max(1);
+
+    let term_width = tmux::terminal_width();
+    let term_height = tmux::terminal_height();
+
+    let (popup_w, popup_h) = render::popup_dimensions(n, term_width, term_height);
+
+    let bin = std::env::current_exe()?;
+    let cmd = format!("{} popup-run", bin.display());
+
+    std::process::Command::new("tmux")
+        .args([
+            "popup",
+            "-C",  // center
+            "-w", &popup_w.to_string(),
+            "-h", &popup_h.to_string(),
+            "-B",  // no border (we draw our own)
+            "--", &cmd,
+        ])
+        .status()?;
+
+    Ok(())
+}
+
+/// Run the popup TUI inside a tmux popup.
+/// Shows horizontal cards, navigate with arrow keys, select with Enter, dismiss with ESC.
+fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
+    // Set up terminal
+    crossterm::execute!(io::stdout(), crossterm::terminal::EnterAlternateScreen)?;
+
+    let backend = CrosstermBackend::new(io::stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
+
+    // Initial state
+    let cards = tmux::query_windows();
+    let active_window_id = tmux::active_window_id().unwrap_or_default();
+
+    // Find the index of the currently active window
+    let selected_index = cards
+        .iter()
+        .position(|c| c.window_active)
+        .unwrap_or(0);
+
+    let mut state = AppState {
+        mode: Mode::Popup,
+        cards,
+        active_session: tmux::active_session().unwrap_or_default(),
+        active_window_id,
+        selected_index,
+        ..AppState::default()
+    };
+
+    // Initial render
+    terminal.draw(|f| {
+        let area = f.area();
+        render::render(f, area, &state);
+    })?;
+
+    // Event loop — popup is transient, no periodic polling
+    loop {
+        if event::poll(Duration::from_millis(200))? {
+            match event::read()? {
+                Event::Key(key) => match key.code {
+                    // Navigate left
+                    KeyCode::Left | KeyCode::Char('h') => {
+                        if state.selected_index > 0 {
+                            state.selected_index -= 1;
+                            state.needs_redraw = true;
+                        }
+                    }
+                    // Navigate right
+                    KeyCode::Right | KeyCode::Char('l') => {
+                        if state.selected_index < state.cards.len().saturating_sub(1) {
+                            state.selected_index += 1;
+                            state.needs_redraw = true;
+                        }
+                    }
+                    // Tab cycles forward
+                    KeyCode::Tab => {
+                        if state.selected_index < state.cards.len().saturating_sub(1) {
+                            state.selected_index += 1;
+                        } else {
+                            state.selected_index = 0;
+                        }
+                        state.needs_redraw = true;
+                    }
+                    // BackTab cycles backward
+                    KeyCode::BackTab => {
+                        if state.selected_index > 0 {
+                            state.selected_index -= 1;
+                        } else {
+                            state.selected_index = state.cards.len().saturating_sub(1);
+                        }
+                        state.needs_redraw = true;
+                    }
+                    // Select and switch
+                    KeyCode::Enter => {
+                        if let Some(card) = state.cards.get(state.selected_index) {
+                            let window_id = card.window_id.clone();
+                            // Switch to the selected window
+                            let _ = tmux::switch_to_window(&window_id);
+                        }
+                        break;
+                    }
+                    // Dismiss
+                    KeyCode::Esc | KeyCode::Char('q') => {
+                        break;
+                    }
+                    // Refresh window list
+                    KeyCode::Char('r') => {
+                        state.cards = tmux::query_windows();
+                        state.active_session = tmux::active_session().unwrap_or_default();
+                        state.active_window_id = tmux::active_window_id().unwrap_or_default();
+                        // Re-clamp selected_index
+                        if state.selected_index >= state.cards.len() {
+                            state.selected_index = state.cards.len().saturating_sub(1);
+                        }
+                        state.needs_redraw = true;
+                    }
+                    _ => {}
+                },
+                Event::Resize(_, _) => {
+                    state.needs_redraw = true;
+                }
+                _ => {}
+            }
+        }
+
+        if state.needs_redraw {
+            terminal.draw(|f| {
+                let area = f.area();
+                render::render(f, area, &state);
+            })?;
+            state.needs_redraw = false;
+        }
+
+        if state.should_quit {
+            break;
+        }
+    }
+
+    // Restore terminal
+    crossterm::execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen)?;
 
     Ok(())
 }
@@ -259,7 +427,7 @@ fn toggle_sidebar(_all: bool) -> Result<(), Box<dyn std::error::Error>> {
             let cmd = format!("tmux-window-sidebar run --width {}cols", cols);
             let _ = std::process::Command::new("tmux")
                 .args([
-                    "split-window", "-t", &target_pane, "-h", "-b",
+                    "split-window", "-t", &target_pane, "-h", "-b", "-f",
                     "-l", &cols.to_string(),
                     &cmd,
                 ])
@@ -322,6 +490,23 @@ fn focus_content() -> Result<(), Box<dyn std::error::Error>> {
             .status();
         return Ok(());
     }
+
+    Ok(())
+}
+
+/// Clear agent status styling and attention flags for a pane.
+/// Called when switching windows to reset the window name color and
+/// clear the attention flag so the sidebar stops highlighting.
+fn clear_status(pane_id: &str) -> Result<(), Box<dyn std::error::Error>> {
+    // Reset window status style to default (removes agent color)
+    let _ = std::process::Command::new("tmux")
+        .args(["set-window-option", "-t", pane_id, "-u", "window-status-style"])
+        .status();
+
+    // Clear pane attention flag
+    let _ = std::process::Command::new("tmux")
+        .args(["set-option", "-p", "-t", pane_id, "-u", "@pane_attention"])
+        .status();
 
     Ok(())
 }

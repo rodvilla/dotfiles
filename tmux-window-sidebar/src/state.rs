@@ -105,6 +105,15 @@ pub struct WindowCard {
     pub agent: Option<AgentInfo>,
 }
 
+// --- Display Mode ---
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Mode {
+    #[default]
+    Popup,
+    Sidebar,
+}
+
 // --- AppState ---
 
 #[derive(Debug, Clone, Default)]
@@ -114,6 +123,8 @@ pub struct AppState {
     pub active_window_id: String,
     pub scroll_offset: u16,
     pub sidebar_width: u16,
+    pub selected_index: usize,
+    pub mode: Mode,
     pub should_quit: bool,
     pub needs_redraw: bool,
 }

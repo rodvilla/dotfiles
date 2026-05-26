@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::state::{AgentType, AppState, PaneStatus, WindowCard};
+use crate::state::{AppState, Mode, WindowCard};
 use crate::icons;
 
 // --- Color constants (matching Ghostty theme) ---
@@ -29,28 +29,41 @@ const COLOR_OPENCODE: Color = Color::Indexed(117); // cyan
 const PILL_LEFT: &str = "\u{e0b6}";   //  (right semicircle)
 const PILL_RIGHT: &str = "\u{e0b4}";  //  (left semicircle)
 
-fn status_color(status: &PaneStatus) -> Color {
+// Card dimensions for popup mode
+const CARD_WIDTH: u16 = 28;
+const CARD_HEIGHT: u16 = 6;
+const CARD_GAP: u16 = 2;
+
+fn status_color(status: &crate::state::PaneStatus) -> Color {
     match status {
-        PaneStatus::Running => COLOR_RUNNING,
-        PaneStatus::Background => COLOR_RUNNING,
-        PaneStatus::Waiting => COLOR_WAITING,
-        PaneStatus::Idle => COLOR_IDLE,
-        PaneStatus::Error => COLOR_ERROR,
-        PaneStatus::Unknown => COLOR_DIM,
+        crate::state::PaneStatus::Running => COLOR_RUNNING,
+        crate::state::PaneStatus::Background => COLOR_RUNNING,
+        crate::state::PaneStatus::Waiting => COLOR_WAITING,
+        crate::state::PaneStatus::Idle => COLOR_IDLE,
+        crate::state::PaneStatus::Error => COLOR_ERROR,
+        crate::state::PaneStatus::Unknown => COLOR_DIM,
     }
 }
 
-fn agent_color(agent_type: &AgentType) -> Color {
+fn agent_color(agent_type: &crate::state::AgentType) -> Color {
     match agent_type {
-        AgentType::Claude => COLOR_CLAUDE,
-        AgentType::Codex => COLOR_CODEX,
-        AgentType::OpenCode => COLOR_OPENCODE,
-        AgentType::Unknown => COLOR_DIM,
+        crate::state::AgentType::Claude => COLOR_CLAUDE,
+        crate::state::AgentType::Codex => COLOR_CODEX,
+        crate::state::AgentType::OpenCode => COLOR_OPENCODE,
+        crate::state::AgentType::Unknown => COLOR_DIM,
     }
 }
 
-/// Render the full sidebar into the given frame area
+/// Render the UI based on the current mode
 pub fn render(frame: &mut Frame, area: Rect, state: &AppState) {
+    match state.mode {
+        Mode::Sidebar => render_sidebar(frame, area, state),
+        Mode::Popup => render_popup(frame, area, state),
+    }
+}
+
+/// Render the sidebar (vertical card layout)
+fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
     if state.cards.is_empty() {
         let paragraph = Paragraph::new(" No tmux windows")
             .style(Style::default().fg(COLOR_DIM).bg(COLOR_BG));
@@ -91,28 +104,84 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppState) {
             height: render_height,
         };
 
-        render_card(frame, card_area, card);
+        render_card(frame, card_area, card, card.window_active);
 
         y += card_height + gap;
         visible_y += card_height + gap;
     }
 }
 
-fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard) {
-    // All cards have invisible borders (matching background)
-    // The active card is distinguished by the folder pill, not the border
-    let border_color = COLOR_BG;
+/// Render the popup (horizontal card layout, like macOS Cmd+Tab)
+fn render_popup(frame: &mut Frame, area: Rect, state: &AppState) {
+    if state.cards.is_empty() {
+        let paragraph = Paragraph::new(" No tmux windows")
+            .style(Style::default().fg(COLOR_DIM).bg(COLOR_BG));
+        frame.render_widget(paragraph, area);
+        return;
+    }
 
-    let text_style = if card.window_active {
+    // Calculate how many cards fit in the visible area
+    let available_width = area.width.saturating_sub(2); // subtract popup borders
+    let cards_that_fit = if available_width >= CARD_WIDTH {
+        (available_width + CARD_GAP) / (CARD_WIDTH + CARD_GAP)
+    } else {
+        1
+    };
+
+    // Calculate horizontal scroll offset to keep selected card visible
+    let selected = state.selected_index as u16;
+    let scroll_offset = if selected >= cards_that_fit {
+        selected - cards_that_fit + 1
+    } else {
+        0
+    };
+
+    let mut x: u16 = 0;
+    for (i, card) in state.cards.iter().enumerate() {
+        let idx = i as u16;
+        if idx < scroll_offset {
+            continue;
+        }
+
+        let card_x = area.x + x;
+        if card_x + CARD_WIDTH > area.x + area.width.saturating_sub(1) {
+            break;
+        }
+
+        let card_area = Rect {
+            x: card_x,
+            y: area.y,
+            width: CARD_WIDTH.min(area.width.saturating_sub(x)),
+            height: CARD_HEIGHT.min(area.height),
+        };
+
+        let is_selected = i == state.selected_index;
+        render_card(frame, card_area, card, is_selected);
+
+        x += CARD_WIDTH + CARD_GAP;
+    }
+}
+
+fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool) {
+    // Selected card gets accent border, active (but not selected) gets subtle highlight,
+    // inactive cards get invisible borders (matching background)
+    let border_color = if selected {
+        COLOR_ACCENT
+    } else if card.window_active {
+        COLOR_ACCENT
+    } else {
+        COLOR_BG
+    };
+
+    let text_style = if selected || card.window_active {
         Style::default().fg(COLOR_TEXT).bg(COLOR_BG)
     } else {
         Style::default().fg(COLOR_DIM).bg(COLOR_BG)
     };
 
-    // Row 1: folder pill (active) or folder text (inactive)
-    let row1 = if card.window_active {
-        // Active window: rounded pill matching status bar style
-        //   folder 
+    // Row 1: folder pill (active/selected) or folder text (inactive)
+    let row1 = if card.window_active || selected {
+        // Active/selected window: rounded pill matching status bar style
         let icon_color = if let Some(ref agent) = card.agent {
             status_color(&agent.status)
         } else {
@@ -122,15 +191,15 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard) {
         Line::from(vec![
             Span::styled(
                 format!(" {PILL_LEFT}"),
-                Style::default().fg(COLOR_ACCENT).bg(COLOR_BG),
+                Style::default().fg(icon_color).bg(COLOR_BG),
             ),
             Span::styled(
                 format!(" {} {} ", icons::ICON_FOLDER, card.folder),
-                Style::default().fg(COLOR_BG).bg(COLOR_ACCENT).add_modifier(Modifier::BOLD),
+                Style::default().fg(COLOR_BG).bg(icon_color).add_modifier(Modifier::BOLD),
             ),
             Span::styled(
                 PILL_RIGHT.to_string(),
-                Style::default().fg(COLOR_ACCENT).bg(COLOR_BG),
+                Style::default().fg(icon_color).bg(COLOR_BG),
             ),
         ])
     } else {
@@ -172,7 +241,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard) {
     let row4 = if let Some(ref agent) = card.agent {
         let s_icon = icons::status_icon(&agent.status);
         let s_color = status_color(&agent.status);
-        let a_icon = icons::agent_icon(&agent.agent_type);
+        //let a_icon = icons::agent_icon(&agent.agent_type);
         let agent_label = agent.agent_type.to_string();
 
         Line::from(vec![
@@ -181,7 +250,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard) {
                 Style::default().fg(s_color).bg(COLOR_BG),
             ),
             Span::styled(
-                format!("{a_icon} {agent_label}"),
+                format!("{agent_label}"),
                 text_style,
             ),
         ])
@@ -198,4 +267,22 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard) {
         .block(block);
 
     frame.render_widget(paragraph, area);
+}
+
+/// Calculate the popup dimensions based on the number of windows
+pub fn popup_dimensions(num_cards: usize, term_width: u16, term_height: u16) -> (u16, u16) {
+    let n = num_cards.max(1) as u16;
+
+    // Ideal width: all cards side by side with gaps
+    let ideal_width = n * CARD_WIDTH + n.saturating_sub(1) * CARD_GAP + 2; // +2 for popup border
+    let max_width = term_width * 90 / 100;
+
+    let width = ideal_width.min(max_width).max(CARD_WIDTH + 2);
+    let height = CARD_HEIGHT + 2; // +2 for popup border
+
+    // Don't exceed terminal dimensions
+    let width = width.min(term_width);
+    let height = height.min(term_height);
+
+    (width, height)
 }

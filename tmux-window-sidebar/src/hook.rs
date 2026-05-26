@@ -87,8 +87,12 @@ pub fn handle_hook(agent: &str, event: &str) -> Result<(), String> {
                     .to_string(),
             )?;
 
-            // Rename window with ⚡ prefix
-            rename_window_with_icon(&pane_id, "⚡");
+            // Colorize window name green for running (only if not focused)
+            if !window_active {
+                update_window_status(&pane_id, Some("#9ece6a"));
+            } else {
+                update_window_status(&pane_id, None);
+            }
         }
 
         HookEvent::Notification => {
@@ -99,8 +103,11 @@ pub fn handle_hook(agent: &str, event: &str) -> Result<(), String> {
                 tmux::set_pane_option(&pane_id, "@pane_wait_reason", reason)?;
             }
 
-            // Play ask sound if window is not focused
+            // Colorize window name amber for waiting (only if not focused)
             if !window_active {
+                update_window_status(&pane_id, Some("#e0af68"));
+
+                // Play ask sound only when window is not focused
                 crate::sound::play_ask_sound();
             }
         }
@@ -111,25 +118,24 @@ pub fn handle_hook(agent: &str, event: &str) -> Result<(), String> {
             tmux::set_pane_option(&pane_id, "@pane_prompt", "")?;
             tmux::set_pane_option(&pane_id, "@pane_wait_reason", "")?;
 
-            // Rename window with ✓ prefix
-            rename_window_with_icon(&pane_id, "✓");
+            // Reset window status style (idle = default colors)
+            update_window_status(&pane_id, None);
 
-            // Play done sound if window is not focused
-            if !window_active {
-                crate::sound::play_done_sound();
-            }
+            // No sound on idle — sounds only play when agent needs attention (ask/permission)
         }
 
         HookEvent::StopFailure => {
             tmux::set_pane_option(&pane_id, "@pane_status", "error")?;
             tmux::set_pane_option(&pane_id, "@pane_attention", "1")?;
 
-            // Rename window with ✕ prefix
-            rename_window_with_icon(&pane_id, "✕");
-
-            // Play done sound if window is not focused
+            // Colorize window name red for error (only if not focused)
             if !window_active {
-                crate::sound::play_done_sound();
+                update_window_status(&pane_id, Some("#f7768e"));
+
+                // Play ask sound for errors that need attention
+                crate::sound::play_ask_sound();
+            } else {
+                update_window_status(&pane_id, None);
             }
         }
 
@@ -215,16 +221,39 @@ fn clear_pane_meta(pane_id: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Rename window with an icon prefix
-fn rename_window_with_icon(pane_id: &str, icon: &str) {
+/// Update window name (strip any legacy icon prefix) and set status color.
+/// Instead of prepending icons to window names (which duplicates the sidebar's
+/// row-4 status icon), we colorize the window name via `window-status-style`.
+/// Active (focused) windows get their style reset to default since the user
+/// can see the agent directly.
+fn update_window_status(pane_id: &str, color: Option<&str>) {
+    // Strip any legacy icon prefix (⚡, ✓, ❓, ✕) from the window name
     let current = tmux::tmux_output(&["display-message", "-t", pane_id, "-p", "#{window_name}"])
         .unwrap_or_default();
-    let clean = current.trim_start_matches(|c: char| !c.is_alphanumeric() && c != ' ')
-        .trim_start()
-        .to_string();
+    let clean = strip_icon_prefix(&current);
 
-    let new_name = format!("{icon} {clean}");
-    let _ = tmux::rename_window(pane_id, &new_name);
+    // Rename to clean name (no icon prefix)
+    if clean != current.trim() {
+        let _ = tmux::rename_window(pane_id, &clean);
+    }
+
+    // Set or reset window status color
+    if let Some(fg) = color {
+        let _ = tmux::set_window_option(pane_id, "window-status-style", &format!("fg={fg},bg=colour235"));
+    } else {
+        let _ = tmux::unset_window_option(pane_id, "window-status-style");
+    }
+}
+
+/// Strip leading icon prefix (⚡, ✓, ❓, ✕) from a window name.
+fn strip_icon_prefix(name: &str) -> String {
+    let trimmed = name.trim();
+    for prefix in &["⚡ ", "✓ ", "❓ ", "✕ "] {
+        if trimmed.starts_with(prefix) {
+            return trimmed[prefix.len()..].to_string();
+        }
+    }
+    trimmed.to_string()
 }
 
 /// Spawn a background task to resolve session name

@@ -21,14 +21,7 @@ function _auto_rename_tmux_window() {
     name="zsh"
   fi
 
-  # Preserve agent status icon (⚡/✓/❓) if present on current window
-  local current icon=""
-  current=$(command tmux display-message -p '#{window_name}')
-  if [[ "$current" =~ ^(⚡|✓|❓)" " ]]; then
-    icon="${match[1]} "
-  fi
-
-  command tmux rename-window "${icon}${name}"
+  command tmux rename-window "${name}"
 }
 
 # Cache the pane's direct-child PID once at startup (avoids calling

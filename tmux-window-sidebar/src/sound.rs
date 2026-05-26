@@ -1,30 +1,5 @@
 use std::path::PathBuf;
 use std::process::Command;
-use std::sync::atomic::{AtomicI64, Ordering};
-
-/// Timestamp of the last "done" sound played (for debounce)
-static LAST_DONE_SOUND: AtomicI64 = AtomicI64::new(0);
-
-/// Debounce interval in milliseconds
-const DONE_DEBOUNCE_MS: u64 = 3000;
-
-/// Play the "done" sound (agent finished working)
-pub fn play_done_sound() {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_millis() as i64;
-
-    let last = LAST_DONE_SOUND.load(Ordering::Relaxed);
-    if now - last < DONE_DEBOUNCE_MS as i64 {
-        // Debounced
-        return;
-    }
-    LAST_DONE_SOUND.store(now, Ordering::Relaxed);
-
-    let sound_list = get_tmux_option("@agent-sound", "Blow");
-    play_random_sound(&sound_list);
-}
 
 /// Play the "ask" sound (agent needs user input)
 pub fn play_ask_sound() {

@@ -2,7 +2,7 @@ use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "tmux-window-sidebar")]
-#[command(about = "Tmux sidebar TUI showing per-window agent cards")]
+#[command(about = "Tmux window switcher — floating popup and sidebar TUI")]
 #[command(version)]
 pub struct Cli {
     #[command(subcommand)]
@@ -11,7 +11,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Launch the TUI sidebar
+    /// Launch the sidebar TUI (persistent pane)
     Run {
         /// Sidebar width as percentage (e.g. "25%") or absolute columns
         #[arg(long, default_value = "28")]
@@ -30,6 +30,15 @@ pub enum Commands {
     ToggleAll,
     /// Focus the content pane (non-sidebar pane) in the current window
     FocusContent,
-    /// Sync status bar visibility with zoom state (show when zoomed, hide when sidebar is open)
+    /// Sync status bar visibility with zoom and sidebar state
     SyncStatus,
+    /// Clear agent status styling and attention flags for a pane
+    ClearStatus {
+        /// Pane ID to clear status for
+        pane_id: String,
+    },
+    /// Show the floating window switcher popup
+    Popup,
+    /// Run the popup TUI (internal — launched inside tmux popup)
+    PopupRun,
 }

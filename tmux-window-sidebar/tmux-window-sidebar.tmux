@@ -37,9 +37,18 @@ setup_keybindings() {
   toggle_key=$(get_option "@ws_key" "e")
   local toggle_all_key
   toggle_all_key=$(get_option "@ws_key_all" "E")
+  local popup_key
+  popup_key=$(get_option "@ws_popup_key" "w")
 
+  # Sidebar toggle bindings
   tmux bind-key "$toggle_key" run-shell -b "$BIN_PATH toggle"
   tmux bind-key "$toggle_all_key" run-shell -b "$BIN_PATH toggle-all"
+
+  # Popup window switcher binding (prefix+key)
+  tmux bind-key "$popup_key" run-shell -b "$BIN_PATH popup"
+
+  # Popup window switcher binding (Alt+Tab, no prefix needed)
+  tmux bind-key -n M-Tab run-shell -b "$BIN_PATH popup"
 }
 
 # Set up hooks for instant refresh on window/pane changes
@@ -51,7 +60,7 @@ setup_hooks() {
 # Set up auto-create for new windows
 setup_auto_create() {
   local auto_create
-  auto_create=$(get_option "@ws_auto_create" "on")
+  auto_create=$(get_option "@ws_auto_create" "off")
   if [ "$auto_create" = "on" ]; then
     tmux set-hook -g after-new-window "run-shell -b \"$BIN_PATH toggle\""
   fi

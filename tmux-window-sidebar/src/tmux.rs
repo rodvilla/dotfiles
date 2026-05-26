@@ -71,7 +71,8 @@ pub fn query_windows() -> Vec<WindowCard> {
 
             let window_id = win_parts[0].to_string();
             let window_index: usize = win_parts[1].parse().unwrap_or(0);
-            let window_name = win_parts[2].to_string();
+            let raw_window_name = win_parts[2].to_string();
+            let window_name = strip_icon_prefix(&raw_window_name);
             let zoomed = win_parts[3].trim() == "1";
 
             let is_active = current_session.as_deref() == Some(session.as_str())
@@ -234,6 +235,34 @@ pub fn unset_pane_option(pane_id: &str, option: &str) -> Result<(), String> {
     }
 }
 
+/// Set a tmux window option
+pub fn set_window_option(pane_id: &str, option: &str, value: &str) -> Result<(), String> {
+    let status = Command::new("tmux")
+        .args(["set-window-option", "-t", pane_id, option, value])
+        .status()
+        .map_err(|e| format!("tmux set-window-option failed: {e}"))?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("tmux set-window-option {option}={value} failed"))
+    }
+}
+
+/// Unset a tmux window option
+pub fn unset_window_option(pane_id: &str, option: &str) -> Result<(), String> {
+    let status = Command::new("tmux")
+        .args(["set-window-option", "-t", pane_id, "-u", option])
+        .status()
+        .map_err(|e| format!("tmux set-window-option -u failed: {e}"))?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("tmux unset-window-option {option} failed"))
+    }
+}
+
 /// Query git branch for a directory
 fn query_git_branch(path: &str) -> Option<String> {
     let output = Command::new("git")
@@ -256,6 +285,18 @@ fn query_git_branch(path: &str) -> Option<String> {
 /// Get a tmux global user option
 pub fn get_global_option(option: &str) -> String {
     tmux_output(&["show-option", "-g", "-q", option]).unwrap_or_default()
+}
+
+/// Strip leading icon prefix (⚡, ✓, ❓, ✕) from a window name.
+/// These are legacy prefixes from the old tmux-agent-icon system.
+fn strip_icon_prefix(name: &str) -> String {
+    let trimmed = name.trim();
+    for prefix in &["⚡ ", "✓ ", "❓ ", "✕ "] {
+        if trimmed.starts_with(prefix) {
+            return trimmed[prefix.len()..].to_string();
+        }
+    }
+    trimmed.to_string()
 }
 
 /// Rename a tmux window
@@ -282,4 +323,34 @@ pub fn is_window_active(pane_id: &str) -> bool {
 /// Get TMUX_PANE environment variable
 pub fn current_pane_id() -> Option<String> {
     std::env::var("TMUX_PANE").ok()
+}
+
+/// Switch to a tmux window by window id
+pub fn switch_to_window(window_id: &str) -> Result<(), String> {
+    let status = Command::new("tmux")
+        .args(["select-window", "-t", window_id])
+        .status()
+        .map_err(|e| format!("tmux select-window failed: {e}"))?;
+
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("tmux select-window to '{window_id}' failed"))
+    }
+}
+
+/// Get the terminal width from tmux
+pub fn terminal_width() -> u16 {
+    tmux_output(&["display-message", "-p", "#{window_width}"])
+        .ok()
+        .and_then(|s| s.trim().parse::<u16>().ok())
+        .unwrap_or(120)
+}
+
+/// Get the terminal height from tmux
+pub fn terminal_height() -> u16 {
+    tmux_output(&["display-message", "-p", "#{window_height}"])
+        .ok()
+        .and_then(|s| s.trim().parse::<u16>().ok())
+        .unwrap_or(40)
 }
