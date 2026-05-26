@@ -320,6 +320,13 @@ pub fn is_window_active(pane_id: &str) -> bool {
         .unwrap_or(false)
 }
 
+/// Check if a pane is the active pane in its window
+pub fn is_pane_active(pane_id: &str) -> bool {
+    tmux_output(&["display-message", "-t", pane_id, "-p", "#{pane_active}"])
+        .map(|s| s.trim() == "1")
+        .unwrap_or(false)
+}
+
 /// Get TMUX_PANE environment variable
 pub fn current_pane_id() -> Option<String> {
     std::env::var("TMUX_PANE").ok()

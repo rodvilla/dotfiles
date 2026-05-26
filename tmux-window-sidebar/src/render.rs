@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     style::{Color, Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, Paragraph},
+    widgets::{Block, Borders, Paragraph},
 };
 
 use crate::state::{AppState, Mode, WindowCard};
@@ -18,6 +18,7 @@ const COLOR_RUNNING: Color = Color::Rgb(158, 206, 106); // #9ece6a
 const COLOR_WAITING: Color = Color::Rgb(224, 175, 104); // #e0af68
 const COLOR_IDLE: Color = Color::Rgb(122, 162, 247);    // #7aa2f7
 const COLOR_ERROR: Color = Color::Rgb(247, 118, 142);   // #f7768e
+const COLOR_FOCUS_BG: Color = Color::Rgb(15, 14, 30);   // subtle focus tint (~5% lighter than base)
 
 // Powerline rounded pill characters
 const PILL_LEFT: &str = "\u{e0b6}";   //  (right semicircle)
@@ -50,11 +51,28 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppState) {
 /// Render the sidebar (vertical card layout)
 fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
     if state.cards.is_empty() {
-        let paragraph = Paragraph::new(" No tmux windows")
-            .style(Style::default().fg(COLOR_DIM).bg(COLOR_BG));
+        let style = if state.sidebar_focused {
+            Style::default().fg(COLOR_DIM).bg(COLOR_FOCUS_BG)
+        } else {
+            Style::default().fg(COLOR_DIM)
+        };
+        let paragraph = Paragraph::new(" No tmux windows").style(style);
         frame.render_widget(paragraph, area);
         return;
     }
+
+    // Render focus background and optional borders when sidebar is focused
+    let card_area = if state.sidebar_focused {
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(COLOR_DIM))
+            .style(Style::default().bg(COLOR_FOCUS_BG));
+        let inner = block.inner(area);
+        frame.render_widget(block, area);
+        inner
+    } else {
+        area
+    };
 
     // Card height: 4 content rows (no borders)
     let card_height: u16 = 4;
@@ -71,25 +89,25 @@ fn render_sidebar(frame: &mut Frame, area: Rect, state: &AppState) {
             visible_y += card_height + gap;
             continue;
         }
-        if card_top >= scroll_offset + area.height {
+        if card_top >= scroll_offset + card_area.height {
             break;
         }
 
         let render_y = y;
-        let render_height = area.height.saturating_sub(render_y).min(card_height);
+        let render_height = card_area.height.saturating_sub(render_y).min(card_height);
 
         if render_height == 0 {
             break;
         }
 
-        let card_area = Rect {
-            x: area.x,
-            y: area.y + render_y,
-            width: area.width,
+        let card_render_area = Rect {
+            x: card_area.x,
+            y: card_area.y + render_y,
+            width: card_area.width,
             height: render_height,
         };
 
-        render_card(frame, card_area, card, card.window_active);
+        render_card(frame, card_render_area, card, card.window_active);
 
         y += card_height + gap;
         visible_y += card_height + gap;
@@ -149,9 +167,9 @@ fn render_popup(frame: &mut Frame, area: Rect, state: &AppState) {
 
 fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool) {
     let text_style = if selected || card.window_active {
-        Style::default().fg(COLOR_TEXT).bg(COLOR_BG)
+        Style::default().fg(COLOR_TEXT)
     } else {
-        Style::default().fg(COLOR_DIM).bg(COLOR_BG)
+        Style::default().fg(COLOR_DIM)
     };
 
     // Row 1: folder pill (active/selected) or folder text (inactive)
@@ -166,7 +184,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
         Line::from(vec![
             Span::styled(
                 format!(" {PILL_LEFT}"),
-                Style::default().fg(icon_color).bg(COLOR_BG),
+                Style::default().fg(icon_color),
             ),
             Span::styled(
                 format!(" {} {} ", icons::ICON_FOLDER, card.folder),
@@ -174,7 +192,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
             ),
             Span::styled(
                 PILL_RIGHT.to_string(),
-                Style::default().fg(icon_color).bg(COLOR_BG),
+                Style::default().fg(icon_color),
             ),
         ])
     } else {
@@ -182,7 +200,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
         Line::from(vec![
             Span::styled(
                 format!(" {} {}", icons::ICON_FOLDER, card.folder),
-                Style::default().fg(COLOR_DIM).bg(COLOR_BG),
+                Style::default().fg(COLOR_DIM),
             ),
         ])
     };
@@ -222,7 +240,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
         Line::from(vec![
             Span::styled(
                 format!(" {s_icon} "),
-                Style::default().fg(s_color).bg(COLOR_BG),
+                Style::default().fg(s_color),
             ),
             Span::styled(
                 format!("{agent_label}"),
@@ -233,8 +251,7 @@ fn render_card(frame: &mut Frame, area: Rect, card: &WindowCard, selected: bool)
         Line::from("")
     };
 
-    let block = Block::default()
-        .style(Style::default().bg(COLOR_BG));
+    let block = Block::default();
 
     let paragraph = Paragraph::new(vec![row1, row2, row3, row4])
         .block(block);

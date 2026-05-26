@@ -64,13 +64,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
+/// RAII guard that restores the terminal on drop (raw mode off, leave alternate screen, show cursor).
+struct TerminalGuard;
+
+impl Drop for TerminalGuard {
+    fn drop(&mut self) {
+        let _ = crossterm::execute!(
+            io::stdout(),
+            crossterm::cursor::Show,
+            crossterm::terminal::LeaveAlternateScreen
+        );
+        let _ = crossterm::terminal::disable_raw_mode();
+    }
+}
+
 fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
-    // Set up terminal
+    // Set up terminal — guard ensures cleanup even on early return / panic
+    crossterm::terminal::enable_raw_mode()?;
     crossterm::execute!(
         io::stdout(),
         crossterm::terminal::EnterAlternateScreen,
         crossterm::cursor::Hide
     )?;
+    let _guard = TerminalGuard;
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend)?;
@@ -111,6 +127,10 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
             state.cards = tmux::query_windows();
             state.active_session = tmux::active_session().unwrap_or_default();
             state.active_window_id = tmux::active_window_id().unwrap_or_default();
+            // Check if sidebar pane is focused
+            if let Ok(pane_id) = std::env::var("TMUX_PANE") {
+                state.sidebar_focused = tmux::is_pane_active(&pane_id);
+            }
             state.needs_redraw = true;
             last_poll = now;
         }
@@ -120,6 +140,9 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
             state.cards = tmux::query_windows();
             state.active_session = tmux::active_session().unwrap_or_default();
             state.active_window_id = tmux::active_window_id().unwrap_or_default();
+            if let Ok(pane_id) = std::env::var("TMUX_PANE") {
+                state.sidebar_focused = tmux::is_pane_active(&pane_id);
+            }
             state.needs_redraw = true;
         }
 
@@ -184,12 +207,7 @@ fn run_tui(width_spec: &str) -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // Restore terminal
-    crossterm::execute!(
-        io::stdout(),
-        crossterm::cursor::Show,
-        crossterm::terminal::LeaveAlternateScreen
-    )?;
+    // TerminalGuard drop restores terminal (cursor show, leave alternate screen, disable raw mode)
 
     // Restore tmux status bar
     let _ = std::process::Command::new("tmux")
@@ -282,12 +300,14 @@ fn launch_popup() -> Result<(), Box<dyn std::error::Error>> {
 /// Run the popup TUI inside a tmux popup.
 /// Shows horizontal cards, navigate with arrow keys, select with Enter, dismiss with ESC.
 fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
-    // Set up terminal
+    // Set up terminal — guard ensures cleanup even on early return / panic
+    crossterm::terminal::enable_raw_mode()?;
     crossterm::execute!(
         io::stdout(),
         crossterm::terminal::EnterAlternateScreen,
         crossterm::cursor::Hide
     )?;
+    let _guard = TerminalGuard;
 
     let backend = CrosstermBackend::new(io::stdout());
     let mut terminal = Terminal::new(backend)?;
@@ -401,12 +421,7 @@ fn run_popup_tui() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    // Restore terminal
-    crossterm::execute!(
-        io::stdout(),
-        crossterm::cursor::Show,
-        crossterm::terminal::LeaveAlternateScreen
-    )?;
+    // TerminalGuard drop restores terminal
 
     Ok(())
 }

@@ -127,6 +127,7 @@ pub struct AppState {
     pub mode: Mode,
     pub should_quit: bool,
     pub needs_redraw: bool,
+    pub sidebar_focused: bool,
 }
 
 impl AppState {
