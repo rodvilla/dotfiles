@@ -31,6 +31,15 @@ return {
       servers = {
         pyright = {},
         tsserver = {},
+        yamlls = {
+          settings = {
+            yaml = {
+              format = {
+                enable = false,
+              },
+            },
+          },
+        },
         intelephense = {
           settings = {
             intelephense = {
@@ -129,6 +138,7 @@ return {
 
       opts.formatters_by_ft = opts.formatters_by_ft or {}
       opts.formatters_by_ft.php = { "pint", "mago", stop_after_first = true }
+      opts.formatters_by_ft.yaml = { "prettier", lsp_format = "never" }
 
       opts.formatters = opts.formatters or {}
       opts.formatters.pint = vim.tbl_deep_extend("force", opts.formatters.pint or {}, {
