@@ -37,7 +37,6 @@ brew "zoxide"
 # Local Development Utilities
 # =============================================================================
 brew "bun"
-brew "cloudflared"
 brew "jandedobbeleer/oh-my-posh/oh-my-posh"
 brew "lefthook"
 brew "shellcheck"
