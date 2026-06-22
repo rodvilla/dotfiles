@@ -10,16 +10,20 @@ tap "oven-sh/bun"
 # =============================================================================
 # CLI Tools - Core
 # =============================================================================
+brew "bash"
 brew "git"
 brew "gh"
+brew "git-delta"
 brew "jq"
+brew "lazygit"
+brew "luarocks"
 brew "mas"
 brew "neovim"
 brew "opencode"
 brew "rtk"
 brew "tmux"
+brew "tree-sitter-cli"
 brew "zsh"
-brew "chezmoi"
 
 # =============================================================================
 # Modern CLI Replacements

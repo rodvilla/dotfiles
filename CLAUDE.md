@@ -29,4 +29,5 @@ Guidance for Claude Code when working with this dotfiles repository.
 
 - This repo uses Antidote (not Zgen/Oh-My-Zsh directly)
 - Ghostty is the terminal (not iTerm2)
-- Chezmoi is available but symlinks are still used for simplicity
+- Dotfiles are managed with the symlink-based `bin/install.sh` (not Chezmoi)
+- Node versions are managed with `fnm` (not nvm)

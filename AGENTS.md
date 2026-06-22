@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Personal macOS dotfiles repo. Symlink-based management (not Chezmoi in practice). Configures Zsh, Ghostty, tmux, Neovim, Oh My Posh, Claude Code, OpenCode, and Zed.
+Personal macOS dotfiles repo. Symlink-based management via `bin/install.sh` (no Chezmoi). Configures Zsh, Ghostty, tmux, Neovim, Oh My Posh, Claude Code, OpenCode, and Zed.
 
 ## Key Commands
 
@@ -26,7 +26,7 @@ Install script is idempotent. `links-only` is safe to re-run anytime.
 ## Conventions
 
 - All shell scripts use `set -euo pipefail`
-- NVM is lazy-loaded (shell functions proxy until first `node`/`npm`/`nvm` call)
+- Node versions via `fnm` (Rust-based); `.zshrc` runs `fnm env --use-on-cd` for auto-switching
 - Oh My Posh prompt is skipped in Apple Terminal (only runs in Ghostty/tmux)
 - `compinit` uses a 24-hour cache (`-C` flag) for faster shell startup
 - `zcompdump` is background-compiled via `zcompile`

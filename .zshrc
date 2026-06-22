@@ -16,9 +16,6 @@ fi
 # User local binaries (Claude CLI, etc.)
 export PATH="$HOME/.local/bin:$PATH"
 
-# NPM global binaries
-export PATH="/Users/rodrigo/.nvm/versions/node/v22.18.0/bin:$PATH"
-
 # =============================================================================
 # Zsh Options
 # =============================================================================
@@ -65,10 +62,6 @@ if /usr/libexec/java_home -v 17 &> /dev/null; then
 fi
 export PATH="$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH"
 
-# NVM
-export NVM_DIR="$HOME/.nvm"
-export NVM_AUTOLOAD=1
-
 # WakaTime
 export ZSH_WAKATIME_PROJECT_DETECTION=true
 
@@ -97,9 +90,6 @@ fi
 
 # Source antidote
 source ${ZDOTDIR:-~}/.antidote/antidote.zsh
-
-# Plugin configuration (before loading)
-zstyle ':omz:plugins:nvm' autoload yes
 
 # Initialize completion system with daily dump caching
 # Must run BEFORE antidote load because plugins use compdef
@@ -132,18 +122,13 @@ source ${DOTFILES}/shell/aliases.zsh
 source ${DOTFILES}/shell/hooks.zsh
 
 # =============================================================================
-# NVM - Node Version Manager (Lazy Loaded for Performance)
+# fnm - Fast Node Manager
 # =============================================================================
-# Lazy load NVM - only initializes when you first use node/npm/nvm
-lazy_load_nvm() {
-  unset -f node npm npx nvm
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-node() { lazy_load_nvm && node "$@"; }
-npm() { lazy_load_nvm && npm "$@"; }
-npx() { lazy_load_nvm && npx "$@"; }
-nvm() { lazy_load_nvm && nvm "$@"; }
+# fnm is a fast Rust-based Node version manager. --use-on-cd auto-switches
+# Node versions when entering a dir with a .nvmrc / .node-version file.
+if command -v fnm &> /dev/null; then
+  eval "$(fnm env --use-on-cd --version-file-strategy recursive)"
+fi
 
 # =============================================================================
 # Rbenv - Ruby Version Manager

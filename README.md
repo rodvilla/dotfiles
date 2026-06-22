@@ -4,9 +4,15 @@ Personal dotfiles for macOS development environment. Configures Zsh, Ghostty ter
 
 ## Installation
 
+On a fresh Mac you won't have SSH keys yet (they're restored later by `secrets.sh`),
+so bootstrap from the repo without SSH:
+
 ```bash
-# Clone the repository
-git clone git@github.com:rodvilla/dotfiles.git ~/.dotfiles
+# Get the repo without SSH keys. Either:
+#   a) Download the ZIP from the GitHub web UI, unzip it, and move it to ~/.dotfiles, or
+#   b) Clone over HTTPS:
+git clone https://github.com/rodvilla/dotfiles.git ~/.dotfiles
+
 cd ~/.dotfiles
 
 # Run install script with a profile
@@ -15,14 +21,21 @@ cd ~/.dotfiles
 ./bin/install.sh minimal        # Just essential CLI tools
 ./bin/install.sh links-only     # Only refresh managed symlinks
 
-# Restore secrets (after Google Drive sync)
+# Set up Node (workstation): fnm install --lts && fnm default lts-latest
+
+# Restore secrets + SSH keys (after Google Drive finishes syncing)
 ./bin/secrets.sh
 ```
 
 Notes:
+- On a fresh macOS install, Homebrew will prompt to install the Xcode Command Line
+  Tools on first run; accept it (or run `xcode-select --install` beforehand).
 - The installer creates and uses `~/Developer` as the default working directory.
-- If you are not signed in to the Mac App Store yet, `mas` apps are skipped automatically. Sign in later and rerun the installer.
-- `bin/secrets.sh` defaults to your Google Drive backup path, but you can override it with `SECRETS_FOLDER=/path/to/Secrets ./bin/secrets.sh`.
+- If you are not signed in to the Mac App Store yet, `mas` apps are skipped
+  automatically. Sign in via the App Store app, then rerun the installer.
+- `bin/secrets.sh` defaults to your Google Drive backup path, but you can override it
+  with `SECRETS_FOLDER=/path/to/Secrets ./bin/secrets.sh`. Google Drive (a cask in the
+  workstation profile) must be installed and synced first.
 
 ## Features & Quick Reference
 
@@ -153,7 +166,7 @@ dotfiles/
 | Editor | Neovim (LazyVim), Zed |
 | AI Coding | Claude Code, OpenCode |
 | Package Manager | Homebrew |
-| Dotfile Manager | [Chezmoi](https://chezmoi.io/) |
+| Node Versions | [fnm](https://github.com/Schniz/fnm) |
 
 Claude Code skills are intentionally left local/tool-managed under `~/.claude/skills` instead of being symlinked into this repo.
 
@@ -196,4 +209,4 @@ cd        # zoxide
 
 ## Development Stack
 
-Laravel/PHP (Herd), Node.js (NVM), Ruby (Rbenv), OrbStack, Kubernetes, Android tooling
+Laravel/PHP (Herd), Node.js (fnm), Ruby (Rbenv), OrbStack, Kubernetes, Android tooling

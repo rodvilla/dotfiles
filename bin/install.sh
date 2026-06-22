@@ -172,19 +172,6 @@ install_brew_packages() {
   log_success "Brew packages installed"
 }
 
-install_nvm() {
-  if [[ -d "$HOME/.nvm" ]]; then
-    log_success "NVM already installed"
-  else
-    log_info "Installing NVM..."
-    # Get latest NVM version from GitHub
-    local nvm_version
-    nvm_version=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
-    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${nvm_version}/install.sh" | bash
-    log_success "NVM $nvm_version installed"
-  fi
-}
-
 install_tpm() {
   if [[ -d "$HOME/.tmux/plugins/tpm" ]]; then
     log_success "TPM already installed"
@@ -322,12 +309,6 @@ main() {
   # Profile-specific installation
   install_brew_packages
 
-  if [[ "$PROFILE" == "workstation" ]]; then
-    install_nvm
-  else
-    log_info "$PROFILE profile - skipping NVM"
-  fi
-
   echo ""
   echo "=============================================="
   echo "  Installation Complete!"
@@ -337,7 +318,7 @@ main() {
   echo "  1. Restart your terminal or run: source ~/.zshrc"
   echo "  2. Install tmux plugins: Press prefix + I (Ctrl-a + I) in tmux"
   if [[ "$PROFILE" == "workstation" ]]; then
-    echo "  3. Set up Node.js: nvm install --lts"
+    echo "  3. Set up Node.js: fnm install --lts && fnm default lts-latest"
     echo "  4. Restore secrets: ./bin/secrets.sh"
   fi
   echo "  5. If App Store apps were skipped, sign in and rerun: ./bin/install.sh $PROFILE"
